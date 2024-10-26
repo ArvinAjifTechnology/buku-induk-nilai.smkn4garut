@@ -49,101 +49,65 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Nav tabs -->
-                                    @if (isset($schoolClass) && isset($entryYear))
-                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
-                                                    data-bs-target="#file-import" type="button" role="tab"
-                                                    aria-controls="file-import" aria-selected="true">Import dari
-                                                    File</button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
-                                                    data-bs-target="#eraport-import" type="button" role="tab"
-                                                    aria-controls="eraport-import" aria-selected="false">Import dari
-                                                    E-Raport</button>
-                                            </li>
-                                        </ul>
-                                    @else
-                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
-                                                    data-bs-target="#file-import" type="button" role="tab"
-                                                    aria-controls="file-import" aria-selected="true">Import dari
-                                                    File</button>
-                                            </li>
-                                        </ul>
-                                    @endif
-                                    @if (isset($schoolClass) && isset($entryYear))
-                                        <!-- Tab panes -->
-                                        <div class="tab-content mt-3">
-                                            <!-- File Import Tab -->
-                                            <div class="tab-pane fade show active" id="file-import" role="tabpanel"
-                                                aria-labelledby="file-import-tab">
-                                                <form action="{{ route('students-grades-import') }}" method="POST"
-                                                    enctype="multipart/form-data">
-                                                    @csrf
-                                                    <div class="form-group">
-                                                        <label for="file" class="form-label">Pilih File Excel untuk
-                                                            Diimpor:</label>
-                                                        <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
-                                                        <input type="file" name="file" id="file"
-                                                            class="form-control form-control-file" required>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary mt-3">
-                                                        <i class="fas fa-upload"></i> Import
-                                                    </button>
-                                                </form>
-                                            </div>
+                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
+                                                data-bs-target="#file-import" type="button" role="tab"
+                                                aria-controls="file-import" aria-selected="true">Import dari File</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
+                                                data-bs-target="#eraport-import" type="button" role="tab"
+                                                aria-controls="eraport-import" aria-selected="false">Import dari
+                                                E-Raport</button>
+                                        </li>
+                                    </ul>
+                                    <!-- Tab panes -->
+                                    <div class="tab-content mt-3">
+                                        <!-- File Import Tab -->
+                                        <div class="tab-pane fade show active" id="file-import" role="tabpanel"
+                                            aria-labelledby="file-import-tab">
+                                            <form action="{{ route('students-grades-import') }}" method="POST"
+                                                enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="form-group">
+                                                    <label for="file" class="form-label">Pilih File Excel untuk
+                                                        Diimpor:</label>
+                                                    <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
+                                                    <input type="file" name="file" id="file"
+                                                        class="form-control form-control-file" required>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-3">
+                                                    <i class="fas fa-upload"></i> Import
+                                                </button>
+                                            </form>
+                                        </div>
 
-                                            <!-- E-Raport Import Tab -->
-                                            <div class="tab-pane fade" id="eraport-import" role="tabpanel"
-                                                aria-labelledby="eraport-import-tab">
-                                                <form action="{{ route('students-grades-e-raport-preview-import') }}"
-                                                    method="POST" enctype="multipart/form-data">
-                                                    @csrf
-                                                    <div class="mb-3">
-                                                        <label for="files" class="form-label">Upload File Excel (Banyak
-                                                            File)</label>
-                                                        <input type="file" name="files[]" class="form-control"
-                                                            required multiple accept=".xlsx, .xls">
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary mt-3">
-                                                        <i class="fas fa-upload"></i> Preview
-                                                    </button>
-                                                </form>
-                                            </div>
+                                        <!-- E-Raport Import Tab -->
+                                        <div class="tab-pane fade" id="eraport-import" role="tabpanel"
+                                            aria-labelledby="eraport-import-tab">
+                                            <form action="{{ route('students-grades-e-raport-preview-import') }}"
+                                                method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <div class="mb-3">
+                                                    <label for="files" class="form-label">Upload File Excel (Banyak
+                                                        File)</label>
+                                                    <input type="file" name="files[]" class="form-control" required
+                                                        multiple accept=".xlsx, .xls">
+                                                </div>
+                                                <button type="submit" class="btn btn-primary mt-3">
+                                                    <i class="fas fa-upload"></i> Preview
+                                                </button>
+                                            </form>
                                         </div>
-                                    @else
-                                        <!-- Tab panes -->
-                                        <div class="tab-content mt-3">
-                                            <!-- File Import Tab -->
-                                            <div class="tab-pane fade show active" id="file-import" role="tabpanel"
-                                                aria-labelledby="file-import-tab">
-                                                <form action="{{ route('students-grades-import') }}" method="POST"
-                                                    enctype="multipart/form-data">
-                                                    @csrf
-                                                    <div class="form-group">
-                                                        <label for="file" class="form-label">Pilih File Excel untuk
-                                                            Diimpor:</label>
-                                                        <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
-                                                        <input type="file" name="file" id="file"
-                                                            class="form-control form-control-file" required>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary mt-3">
-                                                        <i class="fas fa-upload"></i> Import
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     @if (isset($schoolClass) && isset($entryYear))
                         {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                        class="btn btn-primary btn-block">
+                            class="btn btn-primary btn-block">
                             <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
                         </a> --}}
                     @else
