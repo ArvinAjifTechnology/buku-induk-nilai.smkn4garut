@@ -213,7 +213,6 @@ class ManageGradeController extends Controller
         return view('manage_grades.form', compact('students', 'semesters', 'major', 'entryYear', 'allSubjects'));
     }
 
-
     public function store(Request $request)
     {
         $data = $request->input('grades') ?? 0;
