@@ -38,9 +38,14 @@
             </tbody>
         </table>
 
-        <form action="{{ route('students-grades-e-raport-confirm-import') }}" method="POST">
+        <form action="{{ route('students-grades-e-raport-confirm-import') }}" method="POST" style="display: inline;">
             @csrf
             <button type="submit" class="btn btn-success">Konfirmasi dan Lanjutkan</button>
+        </form>
+
+        <form action="{{ route('students-grades-e-raport-cancel-import') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="btn btn-danger">Batalkan</button>
         </form>
     </div>
 @endsection
