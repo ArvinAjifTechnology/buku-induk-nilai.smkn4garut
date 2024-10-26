@@ -254,17 +254,25 @@ class ManageGradeController extends Controller
 
     public function previewFile()
     {
-        $allImportData = session('import_data');
+        $allImportData = session('import_data', []); // Default ke array kosong jika tidak ada
+
+        if (empty($allImportData)) {
+            return redirect()->route('home')->with('error', 'Tidak ada data import untuk dipreview.');
+        }
+
         $currentIndex = session('current_file_index', 0);
 
         if ($currentIndex >= count($allImportData)) {
             return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
         }
 
+        // Ambil data file saat ini berdasarkan indeks
         $currentFileData = $allImportData[$currentIndex];
 
-        return view('manage_grades.preview', ['import' => $currentFileData]);
+        // Kirim data ke view untuk ditampilkan
+        return view('manage_grades.preview', compact('currentFileData', 'currentIndex'));
     }
+
 
     public function previewImport(Request $request)
     {
