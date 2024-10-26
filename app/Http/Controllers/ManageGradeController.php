@@ -282,12 +282,12 @@ class ManageGradeController extends Controller
                 );
             }
 
-            // Ambil semua mata pelajaran dari header file (baris ke-7)
+            // Ambil semua mata pelajaran dari header (baris ke-7)
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
             $importData = [];
-            foreach ($rows->skip(7) as $row) { // Mulai dari baris data siswa
+            foreach ($rows->skip(7) as $row) {
                 $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
                 if ($student) {
                     $rowArray = $row->toArray();
@@ -314,7 +314,6 @@ class ManageGradeController extends Controller
                 }
             }
 
-            // Simpan data per file ke $allImportData
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
@@ -324,11 +323,12 @@ class ManageGradeController extends Controller
             ];
         }
 
-        // Simpan semua data dan set index awal
+        // Simpan semua data dan set file pertama sebagai aktif
         session(['import_data' => $allImportData, 'current_file_index' => 0]);
 
-        return redirect()->route('students-grades-e-raport-preview-file');
+        return $this->showCurrentFile();
     }
+
 
     public function confirmImport()
     {
