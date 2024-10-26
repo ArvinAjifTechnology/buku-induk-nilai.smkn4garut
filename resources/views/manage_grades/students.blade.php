@@ -110,7 +110,7 @@
                         </div>
                         <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
                             class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
+                            <i class="fas fa-edit"></i> Input Nilai Siswa Perkelas
                         </a>
                     @else
                         <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
@@ -137,7 +137,7 @@
                     <!-- Import Form -->
                     <div class="card shadow-sm mb-4">
                         <div class="card-header text-white">
-                            <h4 class="mb-0"><i class="fas fa-upload"></i> Import Nilai Siswa</h4>
+                            <h4 class="mb-0"><i class="fas fa-upload"></i><i class="fas fa-excel"> Import Nilai Siswa</h4>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('students-grades-import') }}" method="POST"
