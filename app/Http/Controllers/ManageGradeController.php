@@ -369,12 +369,6 @@ class ManageGradeController extends Controller
         return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
     }
 
-
-
-
-
-
-
     private function getSemesterId(string $class, string $academicSemester)
     {
         $semesterNumber = 0;
