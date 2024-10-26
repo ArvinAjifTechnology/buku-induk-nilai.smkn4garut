@@ -105,8 +105,8 @@ Route::middleware(['role:admin,student_affairs_staff'])->group(function () {
     //import
     Route::post('/students/{student}/import-grades', [StudentController::class, 'importGrades'])->name('students.import-grades');
     Route::post('/students-grades-import', [ManageGradeController::class, 'import'])->name('students-grades-import');
-    Route::post('/import/preview', [ManageGradeController::class, 'previewImport'])->name('grades.previewImport');
-    Route::post('/import/confirm', [ManageGradeController::class, 'confirmImport'])->name('grades.confirmImport');
+    Route::post('/import/preview', [ManageGradeController::class, 'previewImport'])->name('students-grades-e-raport-previewImport');
+    Route::post('/import/confirm', [ManageGradeController::class, 'confirmImport'])->name('students-grades-e-raport-confirmImport');
 
     //export
     Route::get('/export-students-grades/{schoolClassId}/{entryYearId}',[TemplateController::class, 'studentsGradesTemplateDownload'] )->name('export.students.grades');
