@@ -255,38 +255,24 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        // Validasi untuk memastikan file diunggah
-        if (!$request->hasFile('files')) {
-            return redirect()->back()->with('error', 'Tidak ada file yang diunggah.');
-        }
-
-        $files = $request->file('files'); // Ambil semua file yang diunggah
+        $files = $request->file('file'); // Mengambil semua file
         $allImportData = [];
 
         foreach ($files as $file) {
-            // Periksa apakah file valid
-            if (!$file->isValid()) {
-                return redirect()->back()->with('error', 'Ada file yang tidak valid.');
-            }
-
             $import = new \App\Imports\GradesImport;
             $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
-
-            if (!$rows || $rows->isEmpty()) {
-                return redirect()->back()->with('error', "File {$file->getClientOriginalName()} kosong atau tidak valid.");
-            }
 
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
             $importData = [];
-            foreach ($rows->skip(7) as $row) {
+            foreach ($rows->skip(7) as $row) { // Baris data siswa
                 $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
 
                 if ($student) {
                     $rowArray = $row->toArray();
-                    $scoresWithSubjects = [];
 
+                    $scoresWithSubjects = [];
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
                         $subjectName = $subjects->firstWhere('id', $subjectId)->name;
                         $score = $rowArray[$columnIndex] ?? 0;
@@ -307,6 +293,7 @@ class ManageGradeController extends Controller
                 }
             }
 
+            // Tambahkan data file ke array allImportData
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
@@ -316,10 +303,12 @@ class ManageGradeController extends Controller
             ];
         }
 
+        // Simpan semua data import ke dalam session
         session(['import_data' => $allImportData]);
 
         return view('manage_grades.preview');
     }
+
 
 
 
