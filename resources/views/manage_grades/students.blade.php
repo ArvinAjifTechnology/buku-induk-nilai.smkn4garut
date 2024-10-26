@@ -73,7 +73,7 @@
                                                 <div class="form-group">
                                                     <label for="file" class="form-label">Pilih File Excel untuk
                                                         Diimpor:</label>
-                                                        <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
+                                                    <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
                                                     <input type="file" name="file" id="file"
                                                         class="form-control form-control-file" required>
                                                 </div>
