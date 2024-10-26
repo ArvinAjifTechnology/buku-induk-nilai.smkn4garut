@@ -278,7 +278,7 @@ class ManageGradeController extends Controller
             'file_name' => $file->getClientOriginalName(),
         ]);
 
-        return view('grades.preview');
+        return view('manage_grades.preview');
     }
 
 
