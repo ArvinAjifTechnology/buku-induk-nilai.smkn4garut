@@ -255,7 +255,7 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        $files = $request->file('file'); // Mengambil semua file
+        $files = $request->file('files'); // Mengambil semua file
         $allImportData = [];
 
         foreach ($files as $file) {
