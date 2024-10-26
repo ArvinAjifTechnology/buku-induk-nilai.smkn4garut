@@ -315,50 +315,42 @@ class ManageGradeController extends Controller
 
     public function confirmImport()
     {
-        $allImportData = session('import_data');
+        $importData = session('import_data');
 
-        if (!$allImportData) {
+        if (!$importData) {
             return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
         }
 
-        foreach ($allImportData as $import) {
-            $fileName = $import['file_name'];
-            $importData = $import['data'];
+        $semesterId = session('semester');
 
-            foreach ($importData as $row) {
-                $student = Student::where('nisn', $row['nisn'])->first();
+        foreach ($importData as $row) {
+            $student = Student::where('nisn', $row['nisn'])->first();
 
-                if (!$student) {
-                    return redirect()->back()->with(
-                        'error',
-                        "Siswa dengan NISN '{$row['nisn']}' dari file '{$fileName}' tidak ditemukan."
-                    );
+            if (!$student) {
+                return redirect()->back()->with('error', "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan.");
+            }
+
+            foreach ($row['scores'] as $scoreData) {
+                $subject = Subject::where('name', $scoreData['subject'])->first();
+
+                if (!$subject) {
+                    return redirect()->back()->with('error', "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan.");
                 }
 
-                foreach ($row['scores'] as $scoreData) {
-                    $subject = Subject::where('name', $scoreData['subject'])->first();
-
-                    if (!$subject) {
-                        return redirect()->back()->with(
-                            'error',
-                            "Mata pelajaran '{$scoreData['subject']}' di file '{$fileName}' tidak ditemukan."
-                        );
-                    }
-
-                    Grade::updateOrCreate(
-                        [
-                            'student_id' => $student->id,
-                            'subject_id' => $subject->id,
-                            'semester_id' => session('semester'),
-                        ],
-                        ['score' => $scoreData['score']]
-                    );
-                }
+                Grade::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                        'semester_id' => $semesterId,
+                    ],
+                    ['score' => $scoreData['score']]
+                );
             }
         }
 
-        return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+        return redirect()->route('home')->with('success', 'Data berhasil disimpan.');
     }
+
 
 
 
