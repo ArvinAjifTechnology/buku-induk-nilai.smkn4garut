@@ -12,6 +12,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>No</th>
                     <th>Nama Siswa</th>
                     <th>NISN</th>
                     <th>Kelas</th>
@@ -22,6 +23,7 @@
             <tbody>
                 @foreach ($import['data'] as $data)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $data['name'] }}</td>
                         <td>{{ $data['nisn'] }}</td>
                         <td>{{ $data['schoolClass'] }}</td>
