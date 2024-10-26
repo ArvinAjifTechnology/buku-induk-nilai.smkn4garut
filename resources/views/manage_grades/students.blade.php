@@ -109,8 +109,8 @@
                             </div>
                         </div>
                         <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                            class="btn btn-primary me-2">
-                            <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
+                            class="btn btn-warning me-2">
+                            <i class="fas fa-edit"></i> Input Nilai Siswa Perkelas
                         </a>
                     @else
                         <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
