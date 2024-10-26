@@ -315,7 +315,7 @@ class ManageGradeController extends Controller
 
     public function confirmImport()
     {
-        $allImportData = session('all_import_data');
+        $allImportData = session('import_data');
 
         if (!$allImportData) {
             return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
