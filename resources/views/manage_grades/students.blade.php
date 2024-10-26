@@ -36,7 +36,7 @@
                         <!-- Tombol Import -->
                         <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal"
                             data-bs-target="#importModal">
-                            <i class="fas fa-upload"></i> Import Nilai
+                            <i class="fas fa-upload"></i> <i class="fas fa-excel"></i> Nilai
                         </button>
 
                         <!-- Modal Import -->
@@ -45,7 +45,7 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="importModalLabel">Import Nilai Siswa</h5>
+                                        <h5 class="modal-title" id="importModalLabel"><i class="fas fa-upload"> Import Nilai Siswa</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -55,13 +55,13 @@
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
                                                     data-bs-target="#file-import" type="button" role="tab"
-                                                    aria-controls="file-import" aria-selected="true">Import dari
-                                                    File</button>
+                                                    aria-controls="file-import" aria-selected="true"><i class="fas fa-excel">Import dari
+                                                    File Excel</button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
                                                     data-bs-target="#eraport-import" type="button" role="tab"
-                                                    aria-controls="eraport-import" aria-selected="false">Import dari
+                                                    aria-controls="eraport-import" aria-selected="false"><i class="fas fa-excel">Import dari
                                                     E-Raport</button>
                                             </li>
                                         </ul>
