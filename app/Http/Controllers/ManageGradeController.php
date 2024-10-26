@@ -336,7 +336,8 @@ class ManageGradeController extends Controller
         $semesterId = session('semester');
 
         foreach ($importData as $row) {
-            $student = Student::where('nisn', $row[2])->first();
+            dd($row);
+            $student = Student::where('nisn', $row['nisn'])->first();
 
             if (!$student) {
                 return redirect()->back()->with('error', "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan.");
