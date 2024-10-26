@@ -299,7 +299,14 @@ class ManageGradeController extends Controller
         }
 
         // Simpan semua data ke session untuk digunakan di view
-        session(['all_import_data' => $allImportData]);
+        // Simpan data ke session untuk diakses di view
+        session([
+            'import_data' => $importData,
+            'class' => $rows[2][1],
+            'yearRange' => explode(' ', $rows[3][1])[0],
+            'semester' => $this->getSemesterId($rows[2][1], strtolower(explode(' ', $rows[3][1])[1])), // Simpan semester
+            'file_name' => $file->getClientOriginalName(),
+        ]);
 
         return view('manage_grades.preview');
     }
