@@ -403,9 +403,6 @@ class ManageGradeController extends Controller
         return $subjectIndex;
     }
 
-
-
-
     // public function import(Request $request)
     // {
     //     // Validasi file
