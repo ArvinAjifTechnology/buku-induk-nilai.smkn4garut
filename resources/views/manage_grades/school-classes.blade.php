@@ -63,9 +63,10 @@
                                             </div>
                                             <div class="modal-body">
                                                 <div class="mb-3">
-                                                    <label for="file" class="form-label">Upload File Excel</label>
-                                                    <input type="file" name="file" class="form-control" required
-                                                        accept=".xlsx, .xls">
+                                                    <label for="files" class="form-label">Upload File Excel (Banyak
+                                                        File)</label>
+                                                    <input type="file" name="files[]" class="form-control" required
+                                                        multiple accept=".xlsx, .xls">
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
