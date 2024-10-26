@@ -329,29 +329,21 @@ class ManageGradeController extends Controller
         }
 
         foreach ($allImportData as $import) {
-            $fileName = $import['file_name'];
-            $importData = $import['data'];
-
-            Log::info("Proses file: {$fileName}");
-
-            foreach ($importData as $row) {
-                if (!isset($row['nisn']) || empty($row['nisn'])) {
-                    return redirect()->back()->with('error', "NISN kosong di file '{$fileName}'.");
-                }
-
+            foreach ($import['data'] as $row) {
                 $student = Student::where('nisn', $row['nisn'])->first();
-
                 if (!$student) {
-                    return redirect()->back()->with('error', "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan.");
+                    return redirect()->back()->with(
+                        'error',
+                        "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan di file '{$import['file_name']}'."
+                    );
                 }
 
                 foreach ($row['scores'] as $scoreData) {
                     $subject = Subject::where('name', $scoreData['subject'])->first();
-
                     if (!$subject) {
                         return redirect()->back()->with(
                             'error',
-                            "Mata pelajaran '{$scoreData['subject']}' di file '{$fileName}' tidak ditemukan."
+                            "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$import['file_name']}'."
                         );
                     }
 
@@ -367,10 +359,9 @@ class ManageGradeController extends Controller
             }
         }
 
-        session()->forget('import_data'); // Hapus session setelah selesai
-
         return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
     }
+
 
 
     private function getSemesterId(string $class, string $academicSemester)
