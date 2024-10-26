@@ -314,7 +314,7 @@ class ManageGradeController extends Controller
 
     public function confirmImport()
     {
-        $allImportData = session('import_data'); // Ambil semua data file dari session
+        $allImportData = session('import_data');
 
         if (!$allImportData) {
             return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
@@ -324,23 +324,17 @@ class ManageGradeController extends Controller
             $fileName = $import['file_name'];
             $importData = $import['data'];
 
+            \Log::info("Proses file: {$fileName}");
+
             foreach ($importData as $row) {
-                // Validasi NISN
                 if (!isset($row['nisn']) || empty($row['nisn'])) {
-                    return redirect()->back()->with(
-                        'error',
-                        "NISN kosong atau tidak ditemukan di file '{$fileName}'."
-                    );
+                    return redirect()->back()->with('error', "NISN kosong di file '{$fileName}'.");
                 }
 
-                // Temukan siswa berdasarkan NISN
                 $student = Student::where('nisn', $row['nisn'])->first();
 
                 if (!$student) {
-                    return redirect()->back()->with(
-                        'error',
-                        "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan dalam database."
-                    );
+                    return redirect()->back()->with('error', "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan.");
                 }
 
                 foreach ($row['scores'] as $scoreData) {
@@ -349,16 +343,15 @@ class ManageGradeController extends Controller
                     if (!$subject) {
                         return redirect()->back()->with(
                             'error',
-                            "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$fileName}'."
+                            "Mata pelajaran '{$scoreData['subject']}' di file '{$fileName}' tidak ditemukan."
                         );
                     }
 
-                    // Simpan atau perbarui nilai
                     Grade::updateOrCreate(
                         [
                             'student_id' => $student->id,
                             'subject_id' => $subject->id,
-                            'semester_id' => $import['semester'], // Gunakan semester dari data import
+                            'semester_id' => $import['semester'],
                         ],
                         ['score' => $scoreData['score']]
                     );
@@ -366,11 +359,11 @@ class ManageGradeController extends Controller
             }
         }
 
-        // Hapus session setelah selesai
-        session()->forget('import_data');
+        session()->forget('import_data'); // Hapus session setelah selesai
 
         return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
     }
+
 
     private function getSemesterId(string $class, string $academicSemester)
     {
