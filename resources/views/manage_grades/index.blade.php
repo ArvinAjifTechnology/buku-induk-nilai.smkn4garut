@@ -46,7 +46,6 @@
             </div>
         </div>
 
-
         <div class="row">
             @foreach ($entryYears as $entryYear)
                 <div class="col-md-4 mb-4">
