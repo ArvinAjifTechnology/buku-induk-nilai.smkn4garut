@@ -254,6 +254,21 @@ class ManageGradeController extends Controller
     //     }
     // }
 
+    public function previewFile()
+    {
+        $allImportData = session('import_data');
+        $currentIndex = session('current_file_index', 0);
+
+        if ($currentIndex >= count($allImportData)) {
+            return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+        }
+
+        $currentFileData = $allImportData[$currentIndex];
+
+        return view('manage_grades.preview', ['import' => $currentFileData]);
+    }
+
+
     public function previewImport(Request $request)
     {
         $files = $request->file('files'); // Ambil semua file
