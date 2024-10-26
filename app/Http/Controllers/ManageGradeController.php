@@ -255,24 +255,25 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        $files = $request->file('files'); // Mengambil semua file
+        $files = $request->file('file'); // Ambil semua file
         $allImportData = [];
 
         foreach ($files as $file) {
             $import = new \App\Imports\GradesImport;
             $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
 
+            // Ambil semua mata pelajaran dari header (baris ke-7)
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
             $importData = [];
-            foreach ($rows->skip(7) as $row) { // Baris data siswa
-                $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
+            foreach ($rows->skip(7) as $row) {
+                $student = Student::where('nisn', $row[2])->first();
 
                 if ($student) {
                     $rowArray = $row->toArray();
-
                     $scoresWithSubjects = [];
+
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
                         $subjectName = $subjects->firstWhere('id', $subjectId)->name;
                         $score = $rowArray[$columnIndex] ?? 0;
@@ -293,7 +294,6 @@ class ManageGradeController extends Controller
                 }
             }
 
-            // Tambahkan data file ke array allImportData
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
@@ -303,11 +303,13 @@ class ManageGradeController extends Controller
             ];
         }
 
-        // Simpan semua data import ke dalam session
+        // Simpan ke session dan cek data yang disimpan
         session(['import_data' => $allImportData]);
+        Log::info('Session Import Data:', ['import_data' => $allImportData]);
 
         return view('manage_grades.preview');
     }
+
 
     public function confirmImport()
     {
