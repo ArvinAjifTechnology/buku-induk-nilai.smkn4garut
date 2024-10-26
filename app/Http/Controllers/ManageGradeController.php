@@ -334,7 +334,6 @@ class ManageGradeController extends Controller
         return $this->showCurrentFile();
     }
 
-
     public function showCurrentFile()
     {
         $allImportData = session('import_data', []);
