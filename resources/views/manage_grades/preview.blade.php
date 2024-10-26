@@ -55,10 +55,11 @@
         <form action="{{ route('students-grades-e-raport-confirmImport') }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-success">Konfirmasi dan Simpan</button>
+            <a href="{{ url()->previous() }}" class="btn btn-secondary">Kembali</a>
         </form>
 
-        <form action="{{ route('home') }}" method="GET" class="mt-2">
+        {{-- <form action="{{ route('home') }}" method="GET" class="mt-2">
             <button type="submit" class="btn btn-danger">Batalkan</button>
-        </form>
+        </form> --}}
     </div>
 @endsection
