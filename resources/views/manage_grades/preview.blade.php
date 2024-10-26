@@ -2,15 +2,17 @@
 
 @section('content')
     <div class="container">
-        <h3>Preview Data Import - File: {{ $import['file_name'] }}</h3>
-        <p><strong>Kelas:</strong> {{ $import['class'] }}</p>
-        <p><strong>Tahun Ajaran:</strong> {{ $import['yearRange'] }}</p>
-        <p><strong>Semester:</strong> {{ $import['semester'] }}</p>
-        <p><strong>Total Siswa:</strong> {{ count($import['data']) }}</p>
-
-        <h5>Data Siswa</h5>
         <div class="card">
+            <div class="card-header">
+                <h5>Preview Data Import - File: {{ $import['file_name'] }}</h5>
+            </div>
             <div class="card-body">
+                <p><strong>Kelas:</strong> {{ $import['class'] }}</p>
+                <p><strong>Tahun Ajaran:</strong> {{ $import['yearRange'] }}</p>
+                <p><strong>Semester:</strong> {{ $import['semester'] }}</p>
+                <p><strong>Total Siswa:</strong> {{ count($import['data']) }}</p>
+
+                <h5>Data Siswa</h5>
                 <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                     <table class="table">
                         <thead>
