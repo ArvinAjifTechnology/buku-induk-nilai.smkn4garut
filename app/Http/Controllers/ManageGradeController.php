@@ -321,7 +321,7 @@ class ManageGradeController extends Controller
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
-                'semster_in_e-raport' => strtolower(explode(' ', $rows[3][1])[1]),
+                'semster_in_e_raport' => strtolower(explode(' ', $rows[3][1])[1]),
                 'yearRange' => explode(' ', $rows[3][1])[0],
                 'semester' => $this->getSemesterId($rows[2][1], strtolower(explode(' ', $rows[3][1])[1])),
                 'data' => $importData,
