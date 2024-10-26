@@ -281,6 +281,36 @@ class ManageGradeController extends Controller
         return view('manage_grades.preview');
     }
 
+    public function confirmImport()
+    {
+        $importData = session('import_data');
+        $class = session('class');
+        $yearRange = session('yearRange');
+        $semester = session('semester');
+
+        $semesterId = $this->getSemesterId($class, $semester); // Sesuaikan dengan fungsi Anda
+
+        foreach ($importData as $row) {
+            $student = Student::where('nisn', $row[2])->first();
+
+            if ($student) {
+                foreach ($row->slice(3) as $subjectId => $score) {
+                    Grade::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'subject_id' => $subjectId,
+                            'semester_id' => $semesterId,
+                        ],
+                        ['score' => $score]
+                    );
+                }
+            }
+        }
+
+        return redirect()->route('home')->with('success', 'Data berhasil disimpan.');
+    }
+
+
 
     // public function import(Request $request)
     // {
