@@ -349,18 +349,28 @@ class ManageGradeController extends Controller
 
     public function cancelImport()
     {
+        // Ambil semua data import dari sesi
+        $allImportData = session('import_data', []);
+        $currentIndex = session('current_file_index', 0);
+
+        // Increment index untuk berpindah ke file berikutnya
+        $nextIndex = $currentIndex + 1;
+
         // Hanya hapus data indeks file, jangan langsung semua data import
-        session()->forget('current_file_index');
+        session(['current_file_index' => $nextIndex]);
 
         // Cek jika masih ada data untuk dipreview
-        if (empty(session('import_data'))) {
-            return redirect()->route('home')->with('info', 'Proses import dibatalkan.');
+        if ($nextIndex >= count($allImportData)) {
+            // Jika tidak ada file lagi, redirect ke home
+            session()->forget('import_data'); // Bersihkan data import
+            return redirect()->route('home')->with('info', 'Proses import dibatalkan. Semua file telah diproses.');
         }
 
         // Redirect ke file berikutnya
         return redirect()->route('students-grades-e-raport-preview-file')
         ->with('info', 'Lanjut ke file berikutnya.');
     }
+
 
     public function confirmImport()
     {
