@@ -83,7 +83,6 @@ Route::middleware(['role:admin'])->group(function () {
     // });
 });
 
-
 Route::middleware(['role:admin,student_affairs_staff'])->group(function () {
     Route::get('manage-grades', [ManageGradeController::class, 'index'])->name('manage-grades.index');
     Route::get('manage-grades/majors/{entryYear}', [ManageGradeController::class, 'showMajors'])->name('manage-grades.majors');
