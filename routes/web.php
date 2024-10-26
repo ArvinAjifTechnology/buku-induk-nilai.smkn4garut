@@ -61,7 +61,6 @@ Route::middleware(['role:admin'])->group(function () {
     // Route::post('students-filter', [StudentExportController::class, 'index'])->name('students.filter');
     // Route::get('/students/export', [ManageSubjectAndMajorController::class, 'storeAssignMajors'])->name('manage-subject-and-major.store-assign-majors');
 
-
     // Import
     Route::post('/students/import', [StudentController::class, 'import'])->name('students.import');
     Route::post('/majors/import', [MajorController::class, 'import'])->name('majors.import');
