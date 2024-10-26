@@ -4,6 +4,8 @@ namespace App\Imports;
 
 use App\Models\Major;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -36,7 +38,7 @@ class MajorsImport implements ToCollection, WithHeadingRow, WithValidation
             }
 
             // Validasi manual
-            $validator = \Validator::make($data->toArray(), [
+            $validator = Validator::make($data->toArray(), [
                 'nama' => 'required|string|max:255|unique:majors,name',
                 'singkatan' => 'required|string|max:10|unique:majors,short',
             ]);
@@ -60,7 +62,7 @@ class MajorsImport implements ToCollection, WithHeadingRow, WithValidation
                 ]
             );
 
-            \Log::info('Successfully processed row: ' . json_encode($data->toArray()));
+            Log::info('Successfully processed row: ' . json_encode($data->toArray()));
         }
 
         // Jika ada error, simpan ke session dan redirect kembali setelah loop selesai

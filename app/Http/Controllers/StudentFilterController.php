@@ -118,15 +118,24 @@ class StudentFilterController extends Controller
     public function search(Request $request)
     {
         if (empty($request->query('query'))) {
-            $students = Student::with(['entryYear', 'major', 'schoolClass'])->get(); // Load relasi yang diperlukan
+            $students = Student::with(['entryYear', 'major', 'schoolClass'])->get(); // Load semua relasi
         } else {
-            // Lakukan pencarian berdasarkan input query
+            $query = $request->query('query');
+
+            // Lakukan pencarian pada tabel utama dan relasi terkait
             $students = Student::with(['entryYear', 'major', 'schoolClass'])
-                ->where('full_name', 'like', '%' . $request->query('query') . '%')
-                ->orWhere('nis', 'like', '%' . $request->query('query') . '%')
-                ->orWhere('nik', 'like', '%' . $request->query('query') . '%')
+                ->where('full_name', 'like', '%' . $query . '%')
+                ->orWhere('nis', 'like', '%' . $query . '%')
+                ->orWhere('nik', 'like', '%' . $query . '%')
+                ->orWhereHas('schoolClass', function ($q) use ($query) {
+                    $q->where('name', 'like', '%' . $query . '%');
+                })
+                ->orWhereHas('major', function ($q) use ($query) {
+                    $q->where('name', 'like', '%' . $query . '%');
+                })
                 ->get();
         }
+
 
         return response()->json($students);
     }

@@ -8,6 +8,7 @@ use App\Models\EntryYear;
 use App\Models\SchoolClass;
 use App\Models\GraduationYear;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -20,7 +21,7 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
     public function rules(): array
     {
         return [
-            'kelas' => 'nullable|string',
+            'kelas' => 'nullable|string|required',
             'jurusan' => 'nullable|string',
             'tahun_masuk' => 'nullable|integer',
             'nama_lengkap' => 'required|string|max:255',
@@ -82,6 +83,7 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 continue;
             }
 
+
             $genderMapping = [
                 'Laki-Laki' => 'male',
                 'Perempuan' => 'female'
@@ -103,6 +105,25 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                     'nik' => 'required|unique:students,nik,' . $studentId,
                     'nis' => 'required|unique:students,nis,' . $studentId,
                 ]);
+                $schoolClass = SchoolClass::where('name', $data['kelas'])->first();
+                if (!$schoolClass) {
+                    $errors[] = [
+                        'index' => $index + 1,
+                        '$row' => $row,
+                        'errors' => "Kelas '{$data['kelas']}' tidak ditemukan."
+                    ];
+                    continue;
+                }
+
+                $major = Major::find($schoolClass->major_id);
+                if (!$major) {
+                    $errors[] = [
+                        'index' => $index + 1,
+                        '$row' => $row,
+                        'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan."
+                    ];
+                    continue;
+                }
 
                 if ($validator->fails()) {
                     // Store the errors along with the index (row number)
@@ -204,7 +225,7 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 ]
             );
 
-            \Log::info('Successfully processed row: ' . json_encode($data->toArray()));
+            Log::info('Successfully processed row: ' . json_encode($data->toArray()));
         }
     }
 

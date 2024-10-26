@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Mpdf\Mpdf;
 use ZipArchive;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
 use App\Models\Major;
 use App\Models\Student;
 use App\Models\Subject;
@@ -26,8 +28,8 @@ use PhpOffice\PhpWord\Element\Image;
 use PhpOffice\PhpWord\Element\TextRun;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
-use PhpOffice\PhpWord\Writer\Word2007\Element\TextBreak;
 use PhpOffice\PhpWord\Writer\Word2007\Element\Text;
+use PhpOffice\PhpWord\Writer\Word2007\Element\TextBreak;
 
 class StudentExportController extends Controller
 {
@@ -37,6 +39,7 @@ class StudentExportController extends Controller
     public function index(Request $request)
     {
         $students = Student::with(['schoolClass', 'major', 'entryYear'])->paginate(10);
+        $studentsForm = Student::with(['schoolClass', 'major', 'entryYear'])->get();
         $schoolClasses = SchoolClass::all();
         $majors = Major::all();
         $entryYears = EntryYear::all();
@@ -64,7 +67,7 @@ class StudentExportController extends Controller
         }
         $students = $query->paginate(10);
 
-        return view('students_exports.index', compact('students', 'schoolClasses', 'majors', 'entryYears'));
+        return view('students_exports.index', compact('students', 'schoolClasses', 'majors', 'entryYears', 'studentsForm'));
     }
 
 
@@ -194,7 +197,7 @@ class StudentExportController extends Controller
         $photoPath = storage_path('app/public/' . $student->photo);
 
         // Debug path foto
-        \Log::info("Photo path: " . $photoPath);
+        Log::info("Photo path: " . $photoPath);
 
         if (file_exists($photoPath)) {
             try {
@@ -247,6 +250,7 @@ class StudentExportController extends Controller
 
         // Struktur nama folder
         $baseFolder = "C:/Documents/StudentReports/{$studentStatusName}_{$entryYear}";
+        $baseFolderStudent = "C:/Documents/StudentReport/";
 
         if ($schoolClassId) {
             // Jika berdasarkan kelas
@@ -256,6 +260,8 @@ class StudentExportController extends Controller
             // Jika berdasarkan jurusan
             $majorName = Major::find($majorId)->name;
             $folderPath = "{$baseFolder}_{$majorName}";
+        } elseif ($studentId) {
+            $folderPath = $baseFolderStudent;
         } else {
             // Jika hanya berdasarkan tahun masuk
             $folderPath = $baseFolder;
@@ -271,7 +277,12 @@ class StudentExportController extends Controller
 
         try {
             $templateProcessor->saveAs($this->wordPath);
-            return $this->downloadAsZip($folderPath);
+            $zip = $this->downloadAsZip($folderPath);
+            // dd($zip);
+
+            $pdfPath = $this->convertWordFilesToPdf($folderPath);
+
+            return response()->download($pdfPath)->deleteFileAfterSend(false);
             session()->flash('success', 'Dokumen Word untuk siswa ' . $student->full_name . ' berhasil disimpan di ' . $this->wordPath);
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menyimpan dokumen Word: ' . $e->getMessage());
@@ -324,8 +335,70 @@ class StudentExportController extends Controller
         session()->flash('success', 'ZIP berhasil dibuat dan siap diunduh.');
         $zip->close();
 
-        return response()->download($zipPath)->deleteFileAfterSend(true);
+        // return response()->download($zipPath)->deleteFileAfterSend(true);
+        return $zipPath;
     }
+
+    protected function convertWordFilesToPdf($folderPath)
+    {
+        $dompdf = new \Dompdf\Dompdf();
+        $content = ''; // Menampung semua konten
+
+        $files = File::allFiles($folderPath);
+        foreach ($files as $file) {
+            if ($file->getExtension() === 'docx') {
+                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2007');
+
+                foreach ($phpWord->getSections() as $section) {
+                    foreach ($section->getElements() as $element) {
+                        $content .= $this->extractTextFromElement($element); // Memanggil metode dengan benar
+                    }
+                }
+            }
+        }
+
+        // Render PDF dengan Dompdf
+        $dompdf->loadHtml($content);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Simpan PDF ke storage
+        $pdfPath = storage_path('app/merged_students_report.pdf');
+        file_put_contents($pdfPath, $dompdf->output());
+
+        return $pdfPath;
+    }
+
+    /**
+     * Fungsi rekursif untuk mengekstrak teks dari berbagai elemen Word.
+     */
+    protected function extractTextFromElement($element)
+    {
+        $text = '';
+
+        if ($element instanceof \PhpOffice\PhpWord\Element\TextRun) {
+            // Urai sub-elemen di dalam TextRun
+            foreach ($element->getElements() as $childElement) {
+                $text .= $this->extractTextFromElement($childElement); // Panggil lagi secara rekursif
+            }
+        } elseif ($element instanceof \PhpOffice\PhpWord\Element\Text) {
+            // Tangani elemen teks langsung
+            $text .= '<p>' . htmlspecialchars($element->getText(), ENT_QUOTES, 'UTF-8') . '</p>';
+        } elseif ($element instanceof \PhpOffice\PhpWord\Element\Table) {
+            // Tangani elemen tabel
+            foreach ($element->getRows() as $row) {
+                foreach ($row->getCells() as $cell) {
+                    foreach ($cell->getElements() as $cellElement) {
+                        $text .= $this->extractTextFromElement($cellElement);
+                    }
+                }
+            }
+        }
+
+        return $text;
+    }
+
+
 
 
     protected function generateStudentScoresTable($templateProcessor, $student, $subjectTypes, $semesters)
@@ -411,7 +484,7 @@ class StudentExportController extends Controller
         try {
             $templateProcessor->cloneRowAndSetValues('no', $rows);
         } catch (\PhpOffice\PhpWord\Exception\Exception $e) {
-            \Log::error("Error generating student scores table: " . $e->getMessage());
+            Log::error("Error generating student scores table: " . $e->getMessage());
         }
     }
 

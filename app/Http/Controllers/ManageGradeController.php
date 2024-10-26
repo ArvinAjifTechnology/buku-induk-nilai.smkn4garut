@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\GradesImport;
 use App\Models\EntryYear;
 use App\Models\Grade;
 use App\Models\Major;
@@ -41,8 +42,14 @@ class ManageGradeController extends Controller
                     ->where('uniqid', $entryYear->uniqid)
                     ->firstOrFail();
 
+        // Semester
+        $semesters = Semester::all();
+
         // Mengirim data ke view
-        return view('manage_grades.school-classes', compact('entryYear'));
+        return view(
+            'manage_grades.school-classes',
+            compact('entryYear', 'semesters')
+        );
     }
 
     public function showStudentsByMajorAndEntryYear($entryYearUniqid ,$majorUniqid)
@@ -229,7 +236,6 @@ class ManageGradeController extends Controller
     }
 
 
-
     public function import(Request $request)
     {
         // Validasi file
@@ -237,88 +243,105 @@ class ManageGradeController extends Controller
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
-        // Load file Excel
-        $file = $request->file('file');
-        $spreadsheet = IOFactory::load($file->path());
-        $sheet = $spreadsheet->getActiveSheet();
-        $data = $sheet->toArray();
+        try {
+            // Menggunakan kelas GradesImport untuk mengimpor data
+            Excel::import(new GradesImport(), $request->file('file'));
 
-        // Ambil header
-        $headers = array_shift($data);
-
-        // Ambil semua subjects dan semesters
-        $subjects = Subject::all();
-        $semesters = Semester::all();
-
-        // Buat map untuk mencari index kolom
-        $subjectIndex = [];
-        foreach ($headers as $index => $header) {
-            foreach ($subjects as $subject) {
-                if (strpos($header, $subject->name) !== false) {
-                    $subjectIndex[$subject->id] = $index;
-                }
-            }
+            return back()->with('success', 'Data nilai berhasil diimpor.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
         }
-
-        // Array untuk menampung kesalahan validasi
-        $invalidScores = [];
-
-        // Proses baris data
-        foreach ($data as $row) {
-            $nis = $row[1];
-            $nisn = $row[2];
-            $class = $row[3];
-            $major = $row[4];
-            $name = $row[5];
-
-            $student = Student::where('nis', $nis)->first();
-
-            if (!$student) {
-                // Student tidak ditemukan, lanjutkan ke baris berikutnya
-                continue;
-            }
-
-            foreach ($subjects as $subject) {
-                if (isset($subjectIndex[$subject->id])) {
-                    for ($semesterIndex = 1; $semesterIndex <= 6; ++$semesterIndex) {
-                        $semester = $semesters->find($semesterIndex);
-
-                        if (!$semester) {
-                            continue;
-                        }
-
-                        $dataIndex = $subjectIndex[$subject->id] + ($semesterIndex - 1);
-
-                        if (isset($row[$dataIndex])) {
-                            $score = $row[$dataIndex];
-
-                            // Validasi nilai harus di antara 1 dan 100
-                            if ($score < 1 || $score > 100) {
-                                // Tambahkan kesalahan ke array invalidScores
-                                $invalidScores[] = "Ada error pada baris " . (array_search($row, $data) + 2) . " Nilai {$score} untuk siswa {$student->full_name} pada mata pelajaran {$subject->name} Semester {$semester->id} tidak valid.";
-
-                                continue;
-                            }
-
-                            Grade::updateOrCreate(
-                                [
-                                    'student_id' => $student->id,
-                                    'subject_id' => $subject->id,
-                                    'semester_id' => $semester->id,
-                                ],
-                                ['score' => $score]
-                            );
-                        }
-                    }
-                }
-            }
-        }
-
-        // Redirect dengan pesan kesalahan jika ada nilai tidak valid
-        if (!empty($invalidScores)) {
-            return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport dengan beberapa kesalahan.')->with('errors', $invalidScores);
-        }
-
-        return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport tanpa kesalahan.');
     }
+
+    // public function import(Request $request)
+    // {
+    //     // Validasi file
+    //     $request->validate([
+    //         'file' => 'required|file|mimes:xlsx,xls',
+    //     ]);
+
+    //     // Load file Excel
+    //     $file = $request->file('file');
+    //     $spreadsheet = IOFactory::load($file->path());
+    //     $sheet = $spreadsheet->getActiveSheet();
+    //     $data = $sheet->toArray();
+
+    //     // Ambil header
+    //     $headers = array_shift($data);
+
+    //     // Ambil semua subjects dan semesters
+    //     $subjects = Subject::all();
+    //     $semesters = Semester::all();
+
+    //     // Buat map untuk mencari index kolom
+    //     $subjectIndex = [];
+    //     foreach ($headers as $index => $header) {
+    //         foreach ($subjects as $subject) {
+    //             if (strpos($header, $subject->name) !== false) {
+    //                 $subjectIndex[$subject->id] = $index;
+    //             }
+    //         }
+    //     }
+
+    //     // Array untuk menampung kesalahan validasi
+    //     $invalidScores = [];
+
+    //     // Proses baris data
+    //     foreach ($data as $row) {
+    //         $nis = $row[1];
+    //         $nisn = $row[2];
+    //         $class = $row[3];
+    //         $major = $row[4];
+    //         $name = $row[5];
+
+    //         $student = Student::where('nis', $nis)->first();
+
+    //         if (!$student) {
+    //             // Student tidak ditemukan, lanjutkan ke baris berikutnya
+    //             continue;
+    //         }
+
+    //         foreach ($subjects as $subject) {
+    //             if (isset($subjectIndex[$subject->id])) {
+    //                 for ($semesterIndex = 1; $semesterIndex <= 6; ++$semesterIndex) {
+    //                     $semester = $semesters->find($semesterIndex);
+
+    //                     if (!$semester) {
+    //                         continue;
+    //                     }
+
+    //                     $dataIndex = $subjectIndex[$subject->id] + ($semesterIndex - 1);
+
+    //                     if (isset($row[$dataIndex])) {
+    //                         $score = $row[$dataIndex];
+
+    //                         // Validasi nilai harus di antara 1 dan 100
+    //                         if ($score < 1 || $score > 100) {
+    //                             // Tambahkan kesalahan ke array invalidScores
+    //                             $invalidScores[] = "Ada error pada baris " . (array_search($row, $data) + 2) . " Nilai {$score} untuk siswa {$student->full_name} pada mata pelajaran {$subject->name} Semester {$semester->id} tidak valid.";
+
+    //                             continue;
+    //                         }
+
+    //                         Grade::updateOrCreate(
+    //                             [
+    //                                 'student_id' => $student->id,
+    //                                 'subject_id' => $subject->id,
+    //                                 'semester_id' => $semester->id,
+    //                             ],
+    //                             ['score' => $score]
+    //                         );
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+
+    //     // Redirect dengan pesan kesalahan jika ada nilai tidak valid
+    //     if (!empty($invalidScores)) {
+    //         return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport dengan beberapa kesalahan.')->with('errors', $invalidScores);
+    //     }
+
+    //     return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport tanpa kesalahan.');
+    // }
 }

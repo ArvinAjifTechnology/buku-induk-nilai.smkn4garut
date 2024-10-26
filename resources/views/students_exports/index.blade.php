@@ -26,7 +26,7 @@
                                 <label class="form-label" for="student_id">Siswa</label>
                                 <select name="student_id" id="student_id" class="form-control select2">
                                     <option value="">Semua</option>
-                                    @foreach ($students ?? [] as $student)
+                                    @foreach ($studentsForm ?? [] as $student)
                                         <option value="{{ $student->id }}"
                                             {{ request('student_id') == $student->id ? 'selected' : '' }}>
                                             {{ $student->full_name }}

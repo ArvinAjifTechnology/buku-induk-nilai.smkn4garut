@@ -42,7 +42,53 @@
                         </div>
 
                         <div class="card-body">
-                            <form action="{{ route('students-grades-import') }}" method="POST"
+                            <!-- Tombol Import -->
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#importModal">
+                                Import Nilai dari E-Raport
+                            </button>
+
+                            <!-- Modal Import -->
+                            <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <form action="{{ route('students-grades-import') }}" method="POST"
+                                    {{-- <form action="" method="POST" --}}
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="importModalLabel">Import Nilai</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                {{-- <div class="form-group">
+                                                    <label for="semester" class="form-label">Semester</label>
+                                                    <select name="semester_id" class="form-control select2" required>
+                                                        @foreach ($semesters as $semester)
+                                                            <option value="{{ $semester->id }}">{{ $semester->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div> --}}
+                                                <div class="mb-3">
+                                                    <label for="file" class="form-label">Upload File Excel</label>
+                                                    <input type="file" name="file" class="form-control" required multiple
+                                                        accept=".xlsx, .xls">
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Import</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            {{-- <form action="{{ route('students-grades-import') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group mb-1">
@@ -53,7 +99,7 @@
                                 <button type="submit" class="btn btn-primary  btn-sm mt-1 mb-4">
                                     <i class="fas fa-upload"></i> Import
                                 </button>
-                            </form>
+                            </form> --}}
                             {{-- <!-- Input Nilai untuk Major -->
                         <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
                             class="btn btn-warning btn-sm mt-2">
