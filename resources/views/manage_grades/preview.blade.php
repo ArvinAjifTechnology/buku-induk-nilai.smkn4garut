@@ -5,40 +5,44 @@
         <h3>Preview Data Import</h3>
 
         @foreach (session('import_data') as $import)
-            <h4>File: {{ $import['file_name'] }}</h4>
-            <p><strong>Kelas:</strong> {{ $import['class'] }}</p>
-            <p><strong>Tahun Ajaran:</strong> {{ $import['yearRange'] }}</p>
-            <p><strong>Semester:</strong> {{ $import['semester'] }}</p>
-            <p><strong>Total Siswa:</strong> {{ count($import['data']) }}</p>
+            <div class="mb-5">
+                <h4>File: {{ $import['file_name'] }}</h4>
+                <p><strong>Kelas:</strong> {{ $import['class'] }}</p>
+                <p><strong>Tahun Ajaran:</strong> {{ $import['yearRange'] }}</p>
+                <p><strong>Semester:</strong> {{ $import['semester'] }}</p>
+                <p><strong>Total Siswa yang Akan Diimpor:</strong> {{ count($import['data']) }}</p>
+                <p><strong>Total Mata Pelajaran:</strong> {{ count($import['data'][0]['scores']) }}</p>
 
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Nama Siswa</th>
-                        <th>NISN</th>
-                        <th>Jurusan</th>
-                        <th>Kelas</th>
-                        <th>Nilai</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($import['data'] as $row)
+                <h5>Data Siswa</h5>
+                <table class="table">
+                    <thead>
                         <tr>
-                            <td>{{ $row['name'] }}</td>
-                            <td>{{ $row['nisn'] }}</td>
-                            <td>{{ $row['major'] }}</td>
-                            <td>{{ $row['entryYear'] . '/' . $row['schoolClass'] }}</td>
-                            <td>
-                                <ul>
-                                    @foreach ($row['scores'] as $scoreData)
-                                        <li>{{ $scoreData['subject'] }}: {{ $scoreData['score'] }}</li>
-                                    @endforeach
-                                </ul>
-                            </td>
+                            <th>Nama Siswa</th>
+                            <th>NISN</th>
+                            <th>Jurusan</th>
+                            <th>Kelas</th>
+                            <th>Nilai Mata Pelajaran</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($import['data'] as $data)
+                            <tr>
+                                <td>{{ $data['name'] }}</td>
+                                <td>{{ $data['nisn'] }}</td>
+                                <td>{{ $data['major'] }}</td>
+                                <td>{{ $data['entryYear'] . '/' . $data['schoolClass'] }}</td>
+                                <td>
+                                    <ul>
+                                        @foreach ($data['scores'] as $scoreData)
+                                            <li>{{ $scoreData['subject'] }}: {{ $scoreData['score'] }}</li>
+                                        @endforeach
+                                    </ul>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endforeach
 
         <form action="{{ route('students-grades-e-raport-confirmImport') }}" method="POST">
