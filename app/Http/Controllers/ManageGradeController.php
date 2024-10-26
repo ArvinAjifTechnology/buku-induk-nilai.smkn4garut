@@ -350,39 +350,49 @@ class ManageGradeController extends Controller
         $allImportData = session('import_data');
         $currentIndex = session('current_file_index', 0);
 
-        if ($currentIndex >= count($allImportData)) {
-            return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+        if (!isset($allImportData[$currentIndex])) {
+            return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
         }
 
-        $currentFileData = $allImportData[$currentIndex];
+        $import = $allImportData[$currentIndex];
 
-        foreach ($currentFileData['data'] as $row) {
+        // Proses data siswa untuk file saat ini
+        foreach ($import['data'] as $row) {
             $student = Student::where('nisn', $row['nisn'])->first();
             if (!$student) {
                 return redirect()->back()->with(
                     'error',
-                    "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan."
+                    "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan di file '{$import['file_name']}'."
                 );
             }
 
-            foreach ($row['scores'] as $score) {
-                $subject = Subject::where('name', $score['subject'])->first();
+            foreach ($row['scores'] as $scoreData) {
+                $subject = Subject::where('name', $scoreData['subject'])->first();
+                if (!$subject) {
+                    return redirect()->back()->with(
+                        'error',
+                        "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$import['file_name']}'."
+                    );
+                }
+
                 Grade::updateOrCreate(
                     [
                         'student_id' => $student->id,
                         'subject_id' => $subject->id,
-                        'semester_id' => $currentFileData['semester'],
+                        'semester_id' => $import['semester'],
                     ],
-                    ['score' => $score['score']]
+                    ['score' => $scoreData['score']]
                 );
             }
         }
 
-        // Lanjutkan ke file berikutnya
+        // Tingkatkan indeks untuk file berikutnya
         session(['current_file_index' => $currentIndex + 1]);
 
-        return redirect()->route('students-grades-e-raport-preview-file');
+        // Tampilkan file berikutnya
+        return $this->showCurrentFile();
     }
+
 
 
     private function getSemesterId(string $class, string $academicSemester)
