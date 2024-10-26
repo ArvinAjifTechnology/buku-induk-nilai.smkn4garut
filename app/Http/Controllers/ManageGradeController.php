@@ -354,7 +354,6 @@ class ManageGradeController extends Controller
     }
 
 
-
     public function confirmImport()
     {
         $allImportData = session('import_data');
