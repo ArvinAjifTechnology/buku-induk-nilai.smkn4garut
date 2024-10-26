@@ -413,7 +413,7 @@ class ManageGradeController extends Controller
 
         return $semester->id;
     }
-    
+
     private function mapSubjectIndex(array $headers, $subjects)
     {
         $subjectIndex = [];
