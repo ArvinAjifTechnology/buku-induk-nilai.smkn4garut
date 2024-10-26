@@ -393,7 +393,6 @@ class ManageGradeController extends Controller
         return $this->showCurrentFile();
     } // end function confirmImport
 
-
     private function getSemesterId(string $class, string $academicSemester)
     {
         $semesterNumber = 0;
