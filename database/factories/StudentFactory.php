@@ -31,7 +31,7 @@ class StudentFactory extends Factory
             'major_id' => $majorIds,
             // 'entry_year_id' => EntryYear::inRandomOrder()->first()->id,
             // 'entry_year_id' => $this->faker->randomElement([55,56,57]),
-            'entry_year_id' => $this->faker->randomElement([51,52,53]),
+            'entry_year_id' => $this->faker->randomElement([51,52,53,54]),
             'student_statuses' => $this->faker->randomElement(['active']),
             'full_name' => $this->faker->firstName . ' ' . $this->faker->lastName,
             'gender' => $this->faker->randomElement(['Male', 'Female']),
