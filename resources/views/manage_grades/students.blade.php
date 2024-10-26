@@ -31,6 +31,12 @@
             <!-- Button to Input and Download Student Grades in One Row -->
             <div class="row mb-4">
                 <div class="col-md-6 mb-2">
+                    <!-- Tombol Import -->
+            <div class="col-md-12">
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importModal">
+                    <i class="fas fa-upload"></i> Import Nilai
+                </button>
+            </div>
                     @if (isset($schoolClass) && isset($entryYear))
                         {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
                             class="btn btn-primary btn-block">
