@@ -256,21 +256,27 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        $files = $request->file('files'); // Ambil semua file
-        $allImportData = [];
+        $files = $request->file('file'); // Ambil semua file
+        $allImportData = []; // Untuk menyimpan data dari semua file
 
         foreach ($files as $file) {
             $import = new \App\Imports\GradesImport;
             $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
 
-            // Ambil semua mata pelajaran dari header (baris ke-7)
+            if (is_null($rows) || $rows->isEmpty()) {
+                return redirect()->back()->with(
+                    'error',
+                    "File '{$file->getClientOriginalName()}' tidak mengandung data."
+                );
+            }
+
+            // Ambil semua mata pelajaran dari header file (baris ke-7)
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
             $importData = [];
-            foreach ($rows->skip(7) as $row) {
-                $student = Student::where('nisn', $row[2])->first();
-
+            foreach ($rows->skip(7) as $row) { // Mulai dari baris data siswa
+                $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
                 if ($student) {
                     $rowArray = $row->toArray();
                     $scoresWithSubjects = [];
@@ -278,6 +284,7 @@ class ManageGradeController extends Controller
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
                         $subjectName = $subjects->firstWhere('id', $subjectId)->name;
                         $score = $rowArray[$columnIndex] ?? 0;
+
                         $scoresWithSubjects[] = [
                             'subject' => $subjectName,
                             'score' => $score,
@@ -295,6 +302,7 @@ class ManageGradeController extends Controller
                 }
             }
 
+            // Simpan data per file ke $allImportData
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
@@ -304,12 +312,12 @@ class ManageGradeController extends Controller
             ];
         }
 
-        // Simpan ke session dan cek data yang disimpan
+        // Simpan semua data file ke session
         session(['import_data' => $allImportData]);
-        Log::info('Session Import Data:', ['import_data' => $allImportData]);
 
         return view('manage_grades.preview');
     }
+
 
 
     public function confirmImport()
