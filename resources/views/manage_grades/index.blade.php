@@ -6,37 +6,44 @@
             <!-- Tombol Import -->
             <div class="col-md-12">
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importModal">
-                    <i class="fas fa-upload"></i> Import Nilai dari E-Raport
+                    <i class="fas fa-upload"></i> <i class="fas fa-file-excel"></i> Import Nilai dari E-Raport
                 </button>
             </div>
         </div>
 
         <!-- Modal Import -->
-        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <form action="{{ route('students-grades-e-raport-preview-import') }}" method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="importModalLabel">Import Nilai</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label for="files" class="form-label">Upload File Excel (Banyak File)</label>
-                                <input type="file" name="files[]" class="form-control" required multiple
-                                    accept=".xlsx, .xls">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                            <button type="submit" class="btn btn-primary">Preview</button>
-                        </div>
+<div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form action="{{ route('students-grades-e-raport-preview-import') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importModalLabel">
+                        <i class="fas fa-upload me-2"></i> Import Nilai
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="files" class="form-label">
+                            <i class="fas fa-file-excel me-2"></i> Upload File Excel (Banyak File)
+                        </label>
+                        <input type="file" name="files[]" class="form-control" required multiple accept=".xlsx, .xls">
                     </div>
-                </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times-circle me-1"></i> Tutup
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-eye me-1"></i> Preview
+                    </button>
+                </div>
             </div>
-        </div>
+        </form>
+    </div>
+</div>
+
 
         <div class="row">
             @foreach ($entryYears as $entryYear)
