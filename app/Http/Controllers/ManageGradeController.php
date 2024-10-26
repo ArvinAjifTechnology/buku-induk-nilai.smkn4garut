@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\GradesImport;
-use App\Models\EntryYear;
 use App\Models\Grade;
 use App\Models\Major;
-use App\Models\SchoolClass;
-use App\Models\Semester;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\Semester;
+use App\Models\EntryYear;
+use App\Models\SchoolClass;
 use Illuminate\Http\Request;
+use App\Imports\GradesImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
