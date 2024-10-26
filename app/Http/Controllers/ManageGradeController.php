@@ -347,12 +347,12 @@ class ManageGradeController extends Controller
 
     public function cancelImport()
     {
-        // Hapus data import dari sesi
+        // Hapus data dari sesi dan tampilkan pesan
         session()->forget(['import_data', 'current_file_index']);
-        dd(session('current_file_index'));
 
-        return redirect()->route('home')->with('info', 'Proses import dibatalkan.');
+        return redirect()->route('students-grades-e-raport')->with('info', 'Proses import dibatalkan.');
     }
+
 
     public function confirmImport()
     {
@@ -394,15 +394,16 @@ class ManageGradeController extends Controller
             }
         }
 
-        // Increment current file index for next file
+        // Increment current file index untuk file berikutnya
         session(['current_file_index' => $currentIndex + 1]);
 
         if ($currentIndex + 1 < count($allImportData)) {
-            return redirect()->route('students-grades-e-raport-preview')
+            // Jika masih ada file, kembali ke preview file berikutnya
+            return redirect()->route('students-grades-e-raport-preview-file')
             ->with('info', 'File berhasil diproses. Lanjut ke file berikutnya.');
         }
 
-        return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+        return redirect()->back()->with('success', 'Semua file berhasil diimpor.');
     }// end function confirmImport
 
     private function getSemesterId(string $class, string $academicSemester)
