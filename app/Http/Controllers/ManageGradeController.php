@@ -353,7 +353,6 @@ class ManageGradeController extends Controller
         return redirect()->route('students-grades-import')->with('info', 'Proses import dibatalkan.');
     }
 
-
     public function confirmImport()
     {
         $allImportData = session('import_data');
