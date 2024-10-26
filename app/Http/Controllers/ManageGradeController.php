@@ -332,9 +332,6 @@ class ManageGradeController extends Controller
         return redirect()->route('students-grades-e-raport-preview-file');
     }
 
-
-
-
     public function confirmImport()
     {
         $allImportData = session('import_data');
