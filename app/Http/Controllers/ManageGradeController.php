@@ -256,11 +256,11 @@ class ManageGradeController extends Controller
     public function previewImport(Request $request)
     {
         // Validasi untuk memastikan file diunggah
-        if (!$request->hasFile('file')) {
+        if (!$request->hasFile('files')) {
             return redirect()->back()->with('error', 'Tidak ada file yang diunggah.');
         }
 
-        $files = $request->file('file'); // Ambil semua file yang diunggah
+        $files = $request->file('files'); // Ambil semua file yang diunggah
         $allImportData = [];
 
         foreach ($files as $file) {
@@ -336,7 +336,7 @@ class ManageGradeController extends Controller
         $semesterId = session('semester');
 
         foreach ($importData as $row) {
-            $student = Student::where('nisn', $row['nisn'])->first();
+            $student = Student::where('nisn', $row[2])->first();
 
             if (!$student) {
                 return redirect()->back()->with('error', "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan.");
