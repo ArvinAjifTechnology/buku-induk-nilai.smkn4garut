@@ -324,7 +324,7 @@ class ManageGradeController extends Controller
             $fileName = $import['file_name'];
             $importData = $import['data'];
 
-            \Log::info("Proses file: {$fileName}");
+            Log::info("Proses file: {$fileName}");
 
             foreach ($importData as $row) {
                 if (!isset($row['nisn']) || empty($row['nisn'])) {
