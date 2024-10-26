@@ -52,7 +52,7 @@
                             <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <form action="{{ route('grades.previewImport') }}" method="POST"
+                                    <form action="{{ route('students-grades-e-raport-previewImport') }}" method="POST"
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-content">
