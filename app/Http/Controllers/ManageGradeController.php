@@ -309,7 +309,7 @@ class ManageGradeController extends Controller
                     $importData[] = [
                         'name' => $row[1],
                         'nisn' => $row[2],
-                        'schoolClass' => $student->schoolClass->name,
+                        'schoolClass' => $student->entryYear->year . '/' . $student->schoolClass->name,
                         'major' => $student->major->name,
                         'entryYear' => $student->entryYear->year,
                         'scores' => $scoresWithSubjects,
