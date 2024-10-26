@@ -377,7 +377,7 @@ class ManageGradeController extends Controller
         $currentIndex = session('current_file_index', 0); // Default index = 0
 
         if (!$allImportData || $currentIndex >= count($allImportData)) {
-            return redirect()->route('home')->with('info', 'Semua file telah diimpor.');
+            return redirect()->back()->with('info', 'Semua file telah diimpor.');
         }
 
         $import = $allImportData[$currentIndex];
