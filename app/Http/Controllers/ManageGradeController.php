@@ -254,24 +254,21 @@ class ManageGradeController extends Controller
 
     public function previewFile()
     {
-        $allImportData = session('import_data', []); // Default ke array kosong jika tidak ada
-
-        if (empty($allImportData)) {
-            return redirect()->route('home')->with('error', 'Tidak ada data import untuk dipreview.');
-        }
-
+        $allImportData = session('import_data', []);
         $currentIndex = session('current_file_index', 0);
 
+        // Cek jika semua file sudah diproses
         if ($currentIndex >= count($allImportData)) {
             return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
         }
 
         // Ambil data file saat ini berdasarkan indeks
-        $currentFileData = $allImportData[$currentIndex];
+        $import = $allImportData[$currentIndex];
 
-        // Kirim data ke view untuk ditampilkan
-        return view('manage_grades.preview', compact('currentFileData', 'currentIndex'));
+        // Kirim data file yang sedang dipreview ke view
+        return view('manage_grades.preview', compact('import', 'currentIndex'));
     }
+
 
     public function previewImport(Request $request)
     {
@@ -321,6 +318,7 @@ class ManageGradeController extends Controller
                 }
             }
 
+            // Simpan semua data per file
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
                 'class' => $rows[2][1],
@@ -336,20 +334,19 @@ class ManageGradeController extends Controller
         return $this->showCurrentFile();
     }
 
-    private function showCurrentFile()
+
+    public function showCurrentFile()
     {
-        $allImportData = session('import_data');
+        $allImportData = session('import_data', []);
         $currentIndex = session('current_file_index', 0);
 
-        if (!isset($allImportData[$currentIndex])) {
-            // Jika semua file sudah diproses, kembalikan ke halaman utama
+        if ($currentIndex >= count($allImportData)) {
             return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
         }
 
-        // Kirim data file saat ini ke view
-        return view('manage_grades.preview', [
-            'import' => $allImportData[$currentIndex],
-        ]);
+        $import = $allImportData[$currentIndex];
+
+        return view('manage_grades.preview', compact('import', 'currentIndex'));
     }
 
     public function cancelImport()
