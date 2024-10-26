@@ -31,6 +31,7 @@
             <!-- Button to Input and Download Student Grades in One Row -->
             <div class="row mb-4">
                 <div class="col-md-6 mb-2">
+                    @if (isset($schoolClass) && isset($entryYear))
                     <!-- Tombol Import -->
                     <div class="col-md-12">
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#importModal">
@@ -105,11 +106,10 @@
                             </div>
                         </div>
                     </div>
-                    @if (isset($schoolClass) && isset($entryYear))
-                        {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                            class="btn btn-primary btn-block">
-                            <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
-                        </a> --}}
+                    {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
+                        class="btn btn-primary btn-block">
+                        <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
+                    </a> --}}
                     @else
                         {{-- <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
                             class="btn btn-warning btn-block">
