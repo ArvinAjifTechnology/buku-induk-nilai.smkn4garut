@@ -236,22 +236,22 @@ class ManageGradeController extends Controller
     }
 
 
-    public function import(Request $request)
-    {
-        // Validasi file
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls',
-        ]);
+    // public function import(Request $request)
+    // {
+    //     // Validasi file
+    //     $request->validate([
+    //         'file' => 'required|file|mimes:xlsx,xls',
+    //     ]);
 
-        try {
-            // Menggunakan kelas GradesImport untuk mengimpor data
-            Excel::import(new GradesImport(), $request->file('file'));
+    //     try {
+    //         // Menggunakan kelas GradesImport untuk mengimpor data
+    //         Excel::import(new GradesImport(), $request->file('file'));
 
-            return back()->with('success', 'Data nilai berhasil diimpor.');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
-        }
-    }
+    //         return back()->with('success', 'Data nilai berhasil diimpor.');
+    //     } catch (\Exception $e) {
+    //         return back()->with('error', 'Terjadi kesalahan saat mengimpor data: ' . $e->getMessage());
+    //     }
+    // }
 
     public function previewImport(Request $request)
     {
