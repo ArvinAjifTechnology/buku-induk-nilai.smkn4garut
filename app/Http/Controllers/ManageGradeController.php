@@ -259,62 +259,107 @@ class ManageGradeController extends Controller
         $import = new \App\Imports\GradesImport;
         $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
 
+        // Ambil semua mata pelajaran dari header file (baris ke-7)
+        $subjects = Subject::all();
+        $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
+
         $importData = [];
         foreach ($rows->skip(7) as $row) { // Mulai dari baris data siswa
             $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
 
             if ($student) {
+                $rowArray = $row->toArray(); // Konversi ke array
+
+                // Buat array yang berisi nilai dengan nama mata pelajaran
+                $scoresWithSubjects = [];
+                foreach ($subjectIndex as $subjectId => $columnIndex) {
+                    $subjectName = $subjects->firstWhere('id', $subjectId)->name; // Dapatkan nama subject
+                    $score = $rowArray[$columnIndex] ?? 0; // Ambil nilai, default 0 jika kosong
+                    $scoresWithSubjects[] = [
+                        'subject' => $subjectName,
+                        'score' => $score,
+                    ];
+                }
+
                 $importData[] = [
                     'name' => $row[1], // Nama siswa
                     'nisn' => $row[2], // NISN
                     'schoolClass' => $student->schoolClass->name,
                     'major' => $student->major->name,
                     'entryYear' => $student->entryYear->year,
-                    'scores' => array_slice($row, 3), // Nilai mata pelajaran
+                    'scores' => $scoresWithSubjects,
                 ];
             }
         }
 
         // Simpan data ke session untuk diakses di view
-        session(['import_data' => $importData,
+        session([
+            'import_data' => $importData,
             'class' => $rows[2][1],
             'yearRange' => explode(' ', $rows[3][1])[0],
-            'semester' => strtolower(explode(' ', $rows[3][1])[1]),
+            'semester' => $this->getSemesterId($rows[2][1], strtolower(explode(' ', $rows[3][1])[1])),
             'file_name' => $file->getClientOriginalName(),
         ]);
 
-        return view('grades.preview');
+        return view('manage_grades.preview');
     }
 
 
     public function confirmImport()
     {
         $importData = session('import_data');
-        $class = session('class');
-        $yearRange = session('yearRange');
-        $semester = session('semester');
 
-        $semesterId = $this->getSemesterId($class, $semester); // Sesuaikan dengan fungsi Anda
+        if (!$importData) {
+            return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
+        }
+
+        $class = session('class');
+        $semester = session('semester');
+        $semesterId = $semester;
+
+        // Preload all subjects keyed by name to optimize query usage
+        $subjects = Subject::all()->keyBy('name');
 
         foreach ($importData as $row) {
-            $student = Student::where('nisn', $row[2])->first();
+            if (!isset($row['nisn'])) {
+                return redirect()->back()->with('error', 'NISN tidak ditemukan pada salah satu baris.');
+            }
 
-            if ($student) {
-                foreach ($row->slice(3) as $subjectId => $score) {
-                    Grade::updateOrCreate(
-                        [
-                            'student_id' => $student->id,
-                            'subject_id' => $subjectId,
-                            'semester_id' => $semesterId,
-                        ],
-                        ['score' => $score]
+            $student = Student::where('nisn', $row['nisn'])->first();
+
+            if (!$student) {
+                return redirect()->back()->with(
+                    'error',
+                    "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan dalam database."
+                );
+            }
+
+            foreach ($row['scores'] as $scoreData) {
+                $subject = $subjects->get($scoreData['subject']);
+
+                if (!$subject) {
+                    return redirect()->back()->with(
+                        'error',
+                        "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan dalam database."
                     );
                 }
+
+                // Simpan atau update nilai di database
+                Grade::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                        'semester_id' => $semesterId,
+                    ],
+                    ['score' => $scoreData['score']]
+                );
             }
         }
 
-        return redirect()->route('home')->with('success', 'Data berhasil disimpan.');
+        return redirect()->route('home')->with('success', 'Data berhasil diimpor ke database.');
     }
+
+
 
     private function getSemesterId(string $class, string $academicSemester)
     {
@@ -335,6 +380,19 @@ class ManageGradeController extends Controller
         }
 
         return $semester->id;
+    }
+
+    private function mapSubjectIndex(array $headers, $subjects)
+    {
+        $subjectIndex = [];
+        foreach ($headers as $index => $header) {
+            foreach ($subjects as $subject) {
+                if (strpos(strtolower($header), strtolower($subject->name)) !== false) {
+                    $subjectIndex[$subject->id] = $index;
+                }
+            }
+        }
+        return $subjectIndex;
     }
 
 
