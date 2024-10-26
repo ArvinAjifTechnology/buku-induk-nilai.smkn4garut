@@ -359,7 +359,7 @@ class ManageGradeController extends Controller
             }
         }
 
-        return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+        return redirect()->back()->with('success', 'Semua file berhasil diimpor.');
     }
 
 
