@@ -255,31 +255,37 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls',
-        ]);
-
         $file = $request->file('file');
         $import = new \App\Imports\GradesImport;
         $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
 
-        // Ambil metadata kelas dan tahun pelajaran
-        $class = $rows[2][1];
-        $academicYearInfo = explode(' ', $rows[3][1]);
-        $yearRange = $academicYearInfo[0];
-        $semester = strtolower($academicYearInfo[1]);
+        $importData = [];
+        foreach ($rows->skip(7) as $row) { // Mulai dari baris data siswa
+            $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
 
-        // Simpan data ke dalam session
-        session([
-            'import_data' => $rows->skip(7), // Data siswa (baris 8 ke bawah)
-            'class' => $class,
-            'yearRange' => $yearRange,
-            'semester' => $semester,
+            if ($student) {
+                $importData[] = [
+                    'name' => $row[1], // Nama siswa
+                    'nisn' => $row[2], // NISN
+                    'schoolClass' => $student->schoolClass->name,
+                    'major' => $student->major->name,
+                    'entryYear' => $student->entryYear->year,
+                    'scores' => array_slice($row, 3), // Nilai mata pelajaran
+                ];
+            }
+        }
+
+        // Simpan data ke session untuk diakses di view
+        session(['import_data' => $importData,
+            'class' => $rows[2][1],
+            'yearRange' => explode(' ', $rows[3][1])[0],
+            'semester' => strtolower(explode(' ', $rows[3][1])[1]),
             'file_name' => $file->getClientOriginalName(),
         ]);
 
-        return view('manage_grades.preview');
+        return view('grades.preview');
     }
+
 
     public function confirmImport()
     {
