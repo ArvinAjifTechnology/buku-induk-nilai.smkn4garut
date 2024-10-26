@@ -268,7 +268,6 @@ class ManageGradeController extends Controller
         return view('manage_grades.preview', ['import' => $currentFileData]);
     }
 
-
     public function previewImport(Request $request)
     {
         $files = $request->file('files'); // Ambil semua file
