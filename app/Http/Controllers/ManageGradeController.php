@@ -326,11 +326,12 @@ class ManageGradeController extends Controller
             ];
         }
 
-        // Simpan semua data file ke session
-        session(['import_data' => $allImportData]);
+        // Simpan semua data dan set index awal
+        session(['import_data' => $allImportData, 'current_file_index' => 0]);
 
-        return view('manage_grades.preview');
+        return redirect()->route('students-grades-e-raport-preview-file');
     }
+
 
 
 
