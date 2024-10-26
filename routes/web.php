@@ -108,6 +108,8 @@ Route::middleware(['role:admin,student_affairs_staff'])->group(function () {
     Route::post('/import/preview', [ManageGradeController::class, 'previewImport'])->name('students-grades-e-raport-preview-import');
     Route::get('/import-preview', [ManageGradeController::class, 'previewFile'])->name('students-grades-e-raport-preview-file');
     Route::post('/import/confirm', [ManageGradeController::class, 'confirmImport'])->name('students-grades-e-raport-confirm-import');
+    Route::post('/import-cancel', [ManageGradeController::class, 'cancelImport'])->name('students-grades-e-raport-cancel-import');
+
 
     //export
     Route::get('/export-students-grades/{schoolClassId}/{entryYearId}', [TemplateController::class, 'studentsGradesTemplateDownload'])->name('export.students.grades');
