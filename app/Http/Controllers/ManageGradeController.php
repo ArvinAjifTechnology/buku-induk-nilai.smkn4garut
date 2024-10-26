@@ -344,11 +344,12 @@ class ManageGradeController extends Controller
             'import' => $allImportData[$currentIndex],
         ]);
     }
-    
+
     public function cancelImport()
     {
         // Hapus data import dari sesi
         session()->forget(['import_data', 'current_file_index']);
+        dd(session('current_file_index'));
 
         return redirect()->route('home')->with('info', 'Proses import dibatalkan.');
     }
@@ -356,15 +357,14 @@ class ManageGradeController extends Controller
     public function confirmImport()
     {
         $allImportData = session('import_data');
-        $currentIndex = session('current_file_index', 0);
+        $currentIndex = session('current_file_index', 0); // Default index = 0
 
-        if (!isset($allImportData[$currentIndex])) {
-            return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
+        if (!$allImportData || $currentIndex >= count($allImportData)) {
+            return redirect()->route('home')->with('info', 'Semua file telah diimpor.');
         }
 
         $import = $allImportData[$currentIndex];
 
-        // Proses data siswa untuk file saat ini
         foreach ($import['data'] as $row) {
             $student = Student::where('nisn', $row['nisn'])->first();
             if (!$student) {
@@ -394,12 +394,16 @@ class ManageGradeController extends Controller
             }
         }
 
-        // Tingkatkan indeks untuk file berikutnya
+        // Increment current file index for next file
         session(['current_file_index' => $currentIndex + 1]);
 
-        // Tampilkan file berikutnya
-        return $this->showCurrentFile();
-    } // end function confirmImport
+        if ($currentIndex + 1 < count($allImportData)) {
+            return redirect()->route('students-grades-e-raport-preview')
+            ->with('info', 'File berhasil diproses. Lanjut ke file berikutnya.');
+        }
+
+        return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
+    }// end function confirmImport
 
     private function getSemesterId(string $class, string $academicSemester)
     {
