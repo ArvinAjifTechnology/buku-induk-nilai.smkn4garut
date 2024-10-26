@@ -52,7 +52,7 @@
 
         <form action="{{ route('students-grades-e-raport-cancel-import') }}" method="POST" style="display: inline;">
             @csrf
-            <button type="submit" class="btn btn-danger">Batalkan</button>
+            <button type="submit" class="btn btn-danger">Batalkan dan Lanjutkan</button>
         </form>
     </div>
 @endsection
