@@ -42,7 +42,7 @@ Route::middleware(['role:admin'])->group(function () {
     Route::get('/student-export', [StudentFilterController::class, 'export'])->name('students.export');
     Route::post('/export-photo', [StudentController::class, 'exportPhotos'])->name('export.photo.process');
     Route::get('/api/get-major-by-class/{classId}', [StudentController::class, 'getMajorByClass']);
-    Route::match(['get', 'post'],'/profile', ProfileController::class, 'index')->name('profile.index');
+    Route::match(['get', 'post'], '/profile', ProfileController::class, 'index')->name('profile.index');
     Route::resource('majors', MajorController::class);
     Route::resource('school_classes', SchoolClassController::class);
     Route::resource('subject_types', SubjectTypeController::class);
@@ -106,10 +106,10 @@ Route::middleware(['role:admin,student_affairs_staff'])->group(function () {
     Route::post('/students/{student}/import-grades', [StudentController::class, 'importGrades'])->name('students.import-grades');
     Route::post('/students-grades-import', [ManageGradeController::class, 'import'])->name('students-grades-import');
     Route::post('/import/preview', [ManageGradeController::class, 'previewImport'])->name('students-grades-e-raport-preview-import');
+    Route::get('/import-preview', [ManageGradeController::class, 'previewFile'])->name('students-grades-e-raport-preview-file');
     Route::post('/import/confirm', [ManageGradeController::class, 'confirmImport'])->name('students-grades-e-raport-confirm-import');
 
     //export
-    Route::get('/export-students-grades/{schoolClassId}/{entryYearId}',[TemplateController::class, 'studentsGradesTemplateDownload'] )->name('export.students.grades');
-    Route::get('/export-students-grades-by-major/{majorId}/{entryYearId}',[TemplateController::class, 'studentsGradesMajorTemplateDownload'] )->name('export.major-students.grades');
+    Route::get('/export-students-grades/{schoolClassId}/{entryYearId}', [TemplateController::class, 'studentsGradesTemplateDownload'])->name('export.students.grades');
+    Route::get('/export-students-grades-by-major/{majorId}/{entryYearId}', [TemplateController::class, 'studentsGradesMajorTemplateDownload'])->name('export.major-students.grades');
 });
-
