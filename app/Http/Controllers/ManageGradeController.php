@@ -404,6 +404,15 @@ class ManageGradeController extends Controller
         return $subjectIndex;
     }
 
+    public function cancelImport()
+    {
+        // Hapus data import dari sesi
+        session()->forget(['import_data', 'current_file_index']);
+
+        return redirect()->route('home')->with('info', 'Proses import dibatalkan.');
+    }
+    
+
     public function import(Request $request)
     {
         // Validasi file
