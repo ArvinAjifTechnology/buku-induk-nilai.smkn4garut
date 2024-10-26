@@ -309,14 +309,9 @@ class ManageGradeController extends Controller
         return view('manage_grades.preview');
     }
 
-
-
-
-
-
     public function confirmImport()
     {
-        $allImportData = session('import_data');
+        $allImportData = session('import_data'); // Ambil semua data file dari session
 
         if (!$allImportData) {
             return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
@@ -327,7 +322,7 @@ class ManageGradeController extends Controller
             $importData = $import['data'];
 
             foreach ($importData as $row) {
-                // Validasi apakah NISN tersedia
+                // Validasi NISN
                 if (!isset($row['nisn']) || empty($row['nisn'])) {
                     return redirect()->back()->with(
                         'error',
@@ -351,11 +346,11 @@ class ManageGradeController extends Controller
                     if (!$subject) {
                         return redirect()->back()->with(
                             'error',
-                            "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan."
+                            "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$fileName}'."
                         );
                     }
 
-                    // Simpan atau perbarui nilai siswa
+                    // Simpan atau perbarui nilai
                     Grade::updateOrCreate(
                         [
                             'student_id' => $student->id,
@@ -368,8 +363,12 @@ class ManageGradeController extends Controller
             }
         }
 
+        // Hapus session setelah selesai
+        session()->forget('import_data');
+
         return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
     }
+
 
 
 
