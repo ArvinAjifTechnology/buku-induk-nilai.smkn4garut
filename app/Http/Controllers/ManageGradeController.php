@@ -403,95 +403,95 @@ class ManageGradeController extends Controller
         return $subjectIndex;
     }
 
-    // public function import(Request $request)
-    // {
-    //     // Validasi file
-    //     $request->validate([
-    //         'file' => 'required|file|mimes:xlsx,xls',
-    //     ]);
+    public function import(Request $request)
+    {
+        // Validasi file
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
 
-    //     // Load file Excel
-    //     $file = $request->file('file');
-    //     $spreadsheet = IOFactory::load($file->path());
-    //     $sheet = $spreadsheet->getActiveSheet();
-    //     $data = $sheet->toArray();
+        // Load file Excel
+        $file = $request->file('file');
+        $spreadsheet = IOFactory::load($file->path());
+        $sheet = $spreadsheet->getActiveSheet();
+        $data = $sheet->toArray();
 
-    //     // Ambil header
-    //     $headers = array_shift($data);
+        // Ambil header
+        $headers = array_shift($data);
 
-    //     // Ambil semua subjects dan semesters
-    //     $subjects = Subject::all();
-    //     $semesters = Semester::all();
+        // Ambil semua subjects dan semesters
+        $subjects = Subject::all();
+        $semesters = Semester::all();
 
-    //     // Buat map untuk mencari index kolom
-    //     $subjectIndex = [];
-    //     foreach ($headers as $index => $header) {
-    //         foreach ($subjects as $subject) {
-    //             if (strpos($header, $subject->name) !== false) {
-    //                 $subjectIndex[$subject->id] = $index;
-    //             }
-    //         }
-    //     }
+        // Buat map untuk mencari index kolom
+        $subjectIndex = [];
+        foreach ($headers as $index => $header) {
+            foreach ($subjects as $subject) {
+                if (strpos($header, $subject->name) !== false) {
+                    $subjectIndex[$subject->id] = $index;
+                }
+            }
+        }
 
-    //     // Array untuk menampung kesalahan validasi
-    //     $invalidScores = [];
+        // Array untuk menampung kesalahan validasi
+        $invalidScores = [];
 
-    //     // Proses baris data
-    //     foreach ($data as $row) {
-    //         $nis = $row[1];
-    //         $nisn = $row[2];
-    //         $class = $row[3];
-    //         $major = $row[4];
-    //         $name = $row[5];
+        // Proses baris data
+        foreach ($data as $row) {
+            $nis = $row[1];
+            $nisn = $row[2];
+            $class = $row[3];
+            $major = $row[4];
+            $name = $row[5];
 
-    //         $student = Student::where('nis', $nis)->first();
+            $student = Student::where('nis', $nis)->first();
 
-    //         if (!$student) {
-    //             // Student tidak ditemukan, lanjutkan ke baris berikutnya
-    //             continue;
-    //         }
+            if (!$student) {
+                // Student tidak ditemukan, lanjutkan ke baris berikutnya
+                continue;
+            }
 
-    //         foreach ($subjects as $subject) {
-    //             if (isset($subjectIndex[$subject->id])) {
-    //                 for ($semesterIndex = 1; $semesterIndex <= 6; ++$semesterIndex) {
-    //                     $semester = $semesters->find($semesterIndex);
+            foreach ($subjects as $subject) {
+                if (isset($subjectIndex[$subject->id])) {
+                    for ($semesterIndex = 1; $semesterIndex <= 6; ++$semesterIndex) {
+                        $semester = $semesters->find($semesterIndex);
 
-    //                     if (!$semester) {
-    //                         continue;
-    //                     }
+                        if (!$semester) {
+                            continue;
+                        }
 
-    //                     $dataIndex = $subjectIndex[$subject->id] + ($semesterIndex - 1);
+                        $dataIndex = $subjectIndex[$subject->id] + ($semesterIndex - 1);
 
-    //                     if (isset($row[$dataIndex])) {
-    //                         $score = $row[$dataIndex];
+                        if (isset($row[$dataIndex])) {
+                            $score = $row[$dataIndex];
 
-    //                         // Validasi nilai harus di antara 1 dan 100
-    //                         if ($score < 1 || $score > 100) {
-    //                             // Tambahkan kesalahan ke array invalidScores
-    //                             $invalidScores[] = "Ada error pada baris " . (array_search($row, $data) + 2) . " Nilai {$score} untuk siswa {$student->full_name} pada mata pelajaran {$subject->name} Semester {$semester->id} tidak valid.";
+                            // Validasi nilai harus di antara 1 dan 100
+                            if ($score < 1 || $score > 100) {
+                                // Tambahkan kesalahan ke array invalidScores
+                                $invalidScores[] = "Ada error pada baris " . (array_search($row, $data) + 2) . " Nilai {$score} untuk siswa {$student->full_name} pada mata pelajaran {$subject->name} Semester {$semester->id} tidak valid.";
 
-    //                             continue;
-    //                         }
+                                continue;
+                            }
 
-    //                         Grade::updateOrCreate(
-    //                             [
-    //                                 'student_id' => $student->id,
-    //                                 'subject_id' => $subject->id,
-    //                                 'semester_id' => $semester->id,
-    //                             ],
-    //                             ['score' => $score]
-    //                         );
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
+                            Grade::updateOrCreate(
+                                [
+                                    'student_id' => $student->id,
+                                    'subject_id' => $subject->id,
+                                    'semester_id' => $semester->id,
+                                ],
+                                ['score' => $score]
+                            );
+                        }
+                    }
+                }
+            }
+        }
 
-    //     // Redirect dengan pesan kesalahan jika ada nilai tidak valid
-    //     if (!empty($invalidScores)) {
-    //         return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport dengan beberapa kesalahan.')->with('errors', $invalidScores);
-    //     }
+        // Redirect dengan pesan kesalahan jika ada nilai tidak valid
+        if (!empty($invalidScores)) {
+            return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport dengan beberapa kesalahan.')->with('errors', $invalidScores);
+        }
 
-    //     return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport tanpa kesalahan.');
-    // }
+        return redirect()->back()->with('success', 'Data Nilai Berhasil Diimport tanpa kesalahan.');
+    }
 }
