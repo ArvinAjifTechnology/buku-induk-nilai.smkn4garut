@@ -9,7 +9,7 @@
             <div class="card-body">
                 <p><strong>Kelas:</strong> {{ $import['class'] }}</p>
                 <p><strong>Tahun Ajaran:</strong> {{ $import['yearRange'] }}</p>
-                <p><strong>Semester:</strong> {{ $import['semester'] }}</p>
+                <p><strong>Semester:</strong> {{ $import['semester_in_e_raport'].'/'.$import['semester'] }}</p>
                 <p><strong>Total Siswa:</strong> {{ count($import['data']) }}</p>
 
                 <h5>Data Siswa</h5>
