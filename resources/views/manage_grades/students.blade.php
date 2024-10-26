@@ -5,6 +5,7 @@
         <div class="row">
             <h1 class="mb-4">Daftar Nilai Siswa
                 {{ $entryYear->year }}{{ isset($schoolClass) ? ' / ' . $schoolClass->name : '' }}</h1>
+
             <!-- Error Messages -->
             @if (session('errors'))
                 <div class="alert alert-danger">
@@ -28,17 +29,16 @@
                 </div>
             @endif
 
-            <!-- Button to Input and Download Student Grades in One Row -->
+            <!-- Button Group for Input and Download Student Grades -->
             <div class="row mb-4">
-                <div class="col-md-6 mb-2">
+                <div class="col-md-12 d-flex justify-content-start">
                     @if (isset($schoolClass) && isset($entryYear))
                         <!-- Tombol Import -->
-                        <div class="col-md-12">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#importModal">
-                                <i class="fas fa-upload"></i> Import Nilai
-                            </button>
-                        </div>
+                        <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal"
+                            data-bs-target="#importModal">
+                            <i class="fas fa-upload"></i> Import Nilai
+                        </button>
+
                         <!-- Modal Import -->
                         <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
                             aria-hidden="true">
@@ -108,57 +108,54 @@
                                 </div>
                             </div>
                         </div>
-                        {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                        class="btn btn-primary btn-block">
-                        <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
-                    </a> --}}
+                        <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
+                            class="btn btn-primary me-2">
+                            <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
+                        </a>
                     @else
-                        {{-- <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
-                            class="btn btn-warning btn-block">
+                        <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
+                            class="btn btn-warning me-2">
                             <i class="fas fa-edit"></i> Input Nilai Siswa Perjurusan
-                        </a> --}}
+                        </a>
                     @endif
                 </div>
-                <div class="col-md-6 mb-2">
-                </div>
+
+                @if (isset($schoolClass) && isset($entryYear))
+                    <div class="col-md-6 mb-2">
+                        <a href="{{ route('export.students.grades', ['schoolClassId' => $schoolClass->id, 'entryYearId' => $entryYear->id]) }}"
+                            class="btn btn-success me-2">
+                            <i class="fas fa-download"></i> Unduh Nilai Siswa Perkelas
+                        </a>
+                    </div>
+                @else
+                    <div class="col-md-6 mb-2">
+                        <a href="{{ route('export.major-students.grades', ['majorId' => $major->id, 'entryYearId' => $entryYear->id]) }}"
+                            class="btn btn-success me-2">
+                            <i class="fas fa-download"></i> Unduh Nilai Siswa Perjurusan
+                        </a>
+                    </div>
+                    <!-- Import Form -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header text-white">
+                            <h4 class="mb-0"><i class="fas fa-upload"></i> Import Nilai Siswa</h4>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('students-grades-import') }}" method="POST"
+                                enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group">
+                                    <label for="file" class="form-label">Pilih File Excel untuk Diimpor:</label>
+                                    <input type="file" name="file" id="file"
+                                        class="form-control form-control-file" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-3">
+                                    <i class="fas fa-upload"></i> Import
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
             </div>
-
-            @if (isset($schoolClass) && isset($entryYear))
-                <div class="col-md-6 mb-2">
-                    <a href="{{ route('export.students.grades', ['schoolClassId' => $schoolClass->id, 'entryYearId' => $entryYear->id]) }}"
-                        class="btn btn-success btn-block">
-                        <i class="fas fa-download"></i> Unduh Nilai Siswa Perkelas
-                    </a>
-                </div>
-            @else
-                <div class="col-md-6 mb-2">
-                    <a href="{{ route('export.major-students.grades', ['majorId' => $major->id, 'entryYearId' => $entryYear->id]) }}"
-                        class="btn btn-success btn-block">
-                        <i class="fas fa-download"></i> Unduh Nilai Siswa Perjurusan
-                    </a>
-                </div>
-                <!-- Import Form -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header text-white">
-                        <h4 class="mb-0"><i class="fas fa-upload"></i> Import Nilai Siswa</h4>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('students-grades-import') }}" method="POST"
-                            enctype="multipart/form-data">
-                            @csrf
-                            <div class="form-group">
-                                <label for="file" class="form-label">Pilih File Excel untuk Diimpor:</label>
-                                <input type="file" name="file" id="file"
-                                    class="form-control form-control-file" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary mt-3">
-                                <i class="fas fa-upload"></i> Import
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            @endif
-
 
             <!-- Subjects Table -->
             <div class="table-responsive mt-5">
@@ -216,6 +213,7 @@
         </div>
     </div>
 @endsection
+
 
 {{-- <table class="table table-bordered">
     <thead class="thead-dark">
