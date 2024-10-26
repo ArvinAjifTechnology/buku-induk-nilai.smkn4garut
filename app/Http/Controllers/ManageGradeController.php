@@ -350,7 +350,9 @@ class ManageGradeController extends Controller
         // Hapus data import dari sesi
         session()->forget(['import_data', 'current_file_index']);
 
-        return redirect()->route('students-grades-import')->with('info', 'Proses import dibatalkan.');
+        // Setelah semua file diproses
+        return redirect()->route('students-grades-e-raport-preview-file')
+        ->with('info', 'Lanjut ke file berikutnya.');
     }
 
     public function confirmImport()
