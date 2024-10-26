@@ -45,7 +45,7 @@
             </div>
         @endforeach
 
-        <form action="{{ route('students-grades-e-raport-confirmImport') }}" method="POST">
+        <form action="{{ route('students-grades-e-raport-confirm-import') }}" method="POST">
             @csrf
             <button type="submit" class="btn btn-success">Konfirmasi dan Simpan</button>
             <a href="{{ url()->previous() }}" class="btn btn-secondary">Kembali</a>
