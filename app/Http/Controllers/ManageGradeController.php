@@ -310,6 +310,28 @@ class ManageGradeController extends Controller
         return redirect()->route('home')->with('success', 'Data berhasil disimpan.');
     }
 
+    private function getSemesterId(string $class, string $academicSemester)
+    {
+        $semesterNumber = 0;
+
+        if (strpos($class, '10') !== false) {
+            $semesterNumber = ($academicSemester === 'ganjil') ? 1 : 2;
+        } elseif (strpos($class, '11') !== false) {
+            $semesterNumber = ($academicSemester === 'ganjil') ? 3 : 4;
+        } elseif (strpos($class, '12') !== false) {
+            $semesterNumber = ($academicSemester === 'ganjil') ? 5 : 6;
+        }
+
+        $semester = Semester::where('name', "Semester {$semesterNumber}")->first();
+
+        if (!$semester) {
+            throw new \Exception("Semester tidak ditemukan.");
+        }
+
+        return $semester->id;
+    }
+
+
 
 
     // public function import(Request $request)
