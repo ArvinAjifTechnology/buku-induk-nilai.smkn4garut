@@ -338,44 +338,42 @@ class ManageGradeController extends Controller
     public function confirmImport()
     {
         $allImportData = session('import_data');
+        $currentIndex = session('current_file_index', 0);
 
-        if (!$allImportData) {
-            return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
+        if ($currentIndex >= count($allImportData)) {
+            return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
         }
 
-        foreach ($allImportData as $import) {
-            foreach ($import['data'] as $row) {
-                $student = Student::where('nisn', $row['nisn'])->first();
-                if (!$student) {
-                    return redirect()->back()->with(
-                        'error',
-                        "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan di file '{$import['file_name']}'."
-                    );
-                }
+        $currentFileData = $allImportData[$currentIndex];
 
-                foreach ($row['scores'] as $scoreData) {
-                    $subject = Subject::where('name', $scoreData['subject'])->first();
-                    if (!$subject) {
-                        return redirect()->back()->with(
-                            'error',
-                            "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$import['file_name']}'."
-                        );
-                    }
+        foreach ($currentFileData['data'] as $row) {
+            $student = Student::where('nisn', $row['nisn'])->first();
+            if (!$student) {
+                return redirect()->back()->with(
+                    'error',
+                    "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan."
+                );
+            }
 
-                    Grade::updateOrCreate(
-                        [
-                            'student_id' => $student->id,
-                            'subject_id' => $subject->id,
-                            'semester_id' => $import['semester'],
-                        ],
-                        ['score' => $scoreData['score']]
-                    );
-                }
+            foreach ($row['scores'] as $score) {
+                $subject = Subject::where('name', $score['subject'])->first();
+                Grade::updateOrCreate(
+                    [
+                        'student_id' => $student->id,
+                        'subject_id' => $subject->id,
+                        'semester_id' => $currentFileData['semester'],
+                    ],
+                    ['score' => $score['score']]
+                );
             }
         }
 
-        return redirect()->back()->with('success', 'Semua file berhasil diimpor.');
+        // Lanjutkan ke file berikutnya
+        session(['current_file_index' => $currentIndex + 1]);
+
+        return redirect()->route('students-grades-e-raport-preview-file');
     }
+
 
 
 
