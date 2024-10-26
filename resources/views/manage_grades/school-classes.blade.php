@@ -52,8 +52,7 @@
                             <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel"
                                 aria-hidden="true">
                                 <div class="modal-dialog">
-                                    <form action="{{ route('students-grades-import') }}" method="POST"
-                                    {{-- <form action="" method="POST" --}}
+                                    <form action="{{ route('grades.previewImport') }}" method="POST"
                                         enctype="multipart/form-data">
                                         @csrf
                                         <div class="modal-content">
@@ -63,25 +62,16 @@
                                                     aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
-                                                {{-- <div class="form-group">
-                                                    <label for="semester" class="form-label">Semester</label>
-                                                    <select name="semester_id" class="form-control select2" required>
-                                                        @foreach ($semesters as $semester)
-                                                            <option value="{{ $semester->id }}">{{ $semester->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div> --}}
                                                 <div class="mb-3">
                                                     <label for="file" class="form-label">Upload File Excel</label>
-                                                    <input type="file" name="file" class="form-control" required multiple
+                                                    <input type="file" name="file" class="form-control" required
                                                         accept=".xlsx, .xls">
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
                                                     data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary">Import</button>
+                                                <button type="submit" class="btn btn-primary">Preview</button>
                                             </div>
                                         </div>
                                     </form>
