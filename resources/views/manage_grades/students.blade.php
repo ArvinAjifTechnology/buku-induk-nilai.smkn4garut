@@ -109,7 +109,7 @@
                             </div>
                         </div>
                         <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                            class="btn btn-primary me-2">
+                            class="btn btn-primary">
                             <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
                         </a>
                     @else
@@ -123,14 +123,14 @@
                 @if (isset($schoolClass) && isset($entryYear))
                     <div class="col-md-6 mb-2">
                         <a href="{{ route('export.students.grades', ['schoolClassId' => $schoolClass->id, 'entryYearId' => $entryYear->id]) }}"
-                            class="btn btn-success me-2">
+                            class="btn btn-success me-2 mt-3">
                             <i class="fas fa-download"></i> Unduh Nilai Siswa Perkelas
                         </a>
                     </div>
                 @else
                     <div class="col-md-6 mb-2">
                         <a href="{{ route('export.major-students.grades', ['majorId' => $major->id, 'entryYearId' => $entryYear->id]) }}"
-                            class="btn btn-success me-2">
+                            class="btn btn-success me-2 mt-3">
                             <i class="fas fa-download"></i> Unduh Nilai Siswa Perjurusan
                         </a>
                     </div>
