@@ -308,57 +308,51 @@ class ManageGradeController extends Controller
 
     public function confirmImport()
     {
-        $importData = session('import_data');
+        $allImportData = session('all_import_data');
 
-        if (!$importData) {
+        if (!$allImportData) {
             return redirect()->back()->with('error', 'Tidak ada data untuk diimpor.');
         }
 
-        $class = session('class');
-        $semester = session('semester');
-        $semesterId = $semester;
+        foreach ($allImportData as $import) {
+            $fileName = $import['file_name'];
+            $importData = $import['data'];
 
-        // Preload all subjects keyed by name to optimize query usage
-        $subjects = Subject::all()->keyBy('name');
+            foreach ($importData as $row) {
+                $student = Student::where('nisn', $row['nisn'])->first();
 
-        foreach ($importData as $row) {
-            if (!isset($row['nisn'])) {
-                return redirect()->back()->with('error', 'NISN tidak ditemukan pada salah satu baris.');
-            }
-
-            $student = Student::where('nisn', $row['nisn'])->first();
-
-            if (!$student) {
-                return redirect()->back()->with(
-                    'error',
-                    "Siswa dengan NISN '{$row['nisn']}' tidak ditemukan dalam database."
-                );
-            }
-
-            foreach ($row['scores'] as $scoreData) {
-                $subject = $subjects->get($scoreData['subject']);
-
-                if (!$subject) {
+                if (!$student) {
                     return redirect()->back()->with(
                         'error',
-                        "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan dalam database."
+                        "Siswa dengan NISN '{$row['nisn']}' dari file '{$fileName}' tidak ditemukan."
                     );
                 }
 
-                // Simpan atau update nilai di database
-                Grade::updateOrCreate(
-                    [
-                        'student_id' => $student->id,
-                        'subject_id' => $subject->id,
-                        'semester_id' => $semesterId,
-                    ],
-                    ['score' => $scoreData['score']]
-                );
+                foreach ($row['scores'] as $scoreData) {
+                    $subject = Subject::where('name', $scoreData['subject'])->first();
+
+                    if (!$subject) {
+                        return redirect()->back()->with(
+                            'error',
+                            "Mata pelajaran '{$scoreData['subject']}' di file '{$fileName}' tidak ditemukan."
+                        );
+                    }
+
+                    Grade::updateOrCreate(
+                        [
+                            'student_id' => $student->id,
+                            'subject_id' => $subject->id,
+                            'semester_id' => session('semester'),
+                        ],
+                        ['score' => $scoreData['score']]
+                    );
+                }
             }
         }
 
-        return redirect()->route('home')->with('success', 'Data berhasil diimpor ke database.');
+        return redirect()->route('home')->with('success', 'Semua file berhasil diimpor.');
     }
+
 
 
 
