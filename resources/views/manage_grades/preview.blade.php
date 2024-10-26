@@ -37,7 +37,7 @@
         </tbody>
     </table>
 
-    <form action="{{ route('grades.confirmImport') }}" method="POST">
+    <form action="{{ route('students-grades-e-raport-confirmImport') }}" method="POST">
         @csrf
         <button type="submit" class="btn btn-primary">Konfirmasi dan Simpan</button>
     </form>
