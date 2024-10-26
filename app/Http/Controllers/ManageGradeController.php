@@ -236,7 +236,6 @@ class ManageGradeController extends Controller
         return redirect()->back()->with('success', 'Data nilai berhasil disimpan.');
     }
 
-
     // public function import(Request $request)
     // {
     //     // Validasi file
