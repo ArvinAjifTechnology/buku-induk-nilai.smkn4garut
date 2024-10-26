@@ -49,19 +49,36 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Nav tabs -->
-                                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
-                                                data-bs-target="#file-import" type="button" role="tab"
-                                                aria-controls="file-import" aria-selected="true">Import dari File</button>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
-                                                data-bs-target="#eraport-import" type="button" role="tab"
-                                                aria-controls="eraport-import" aria-selected="false">Import dari
-                                                E-Raport</button>
-                                        </li>
-                                    </ul>
+                                    @if (isset($schoolClass) && isset($entryYear))
+                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
+                                                    data-bs-target="#file-import" type="button" role="tab"
+                                                    aria-controls="file-import" aria-selected="true">Import dari
+                                                    File</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
+                                                    data-bs-target="#eraport-import" type="button" role="tab"
+                                                    aria-controls="eraport-import" aria-selected="false">Import dari
+                                                    E-Raport</button>
+                                            </li>
+                                        </ul>
+                                    @else
+                                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
+                                                    data-bs-target="#file-import" type="button" role="tab"
+                                                    aria-controls="file-import" aria-selected="true">Import dari
+                                                    File</button>
+                                            </li>
+                                        </ul>
+                                    @endif
+                                    @if (isset($schoolClass) && isset($entryYear))
+
+                    @else
+
+                    @endif
                                     <!-- Tab panes -->
                                     <div class="tab-content mt-3">
                                         <!-- File Import Tab -->
@@ -107,7 +124,7 @@
                     </div>
                     @if (isset($schoolClass) && isset($entryYear))
                         {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
-                            class="btn btn-primary btn-block">
+                        class="btn btn-primary btn-block">
                             <i class="fas fa-plus"></i> Input Nilai Siswa Perkelas
                         </a> --}}
                     @else
