@@ -255,26 +255,29 @@ class ManageGradeController extends Controller
 
     public function previewImport(Request $request)
     {
-        $files = $request->file('files');
-        $allImportData = []; // Untuk menampung data dari semua file
+        $files = $request->file('file'); // Mengambil semua file
+        $allImportData = [];
 
         foreach ($files as $file) {
             $import = new \App\Imports\GradesImport;
             $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
 
-            // Ambil semua mata pelajaran dari header (baris ke-7)
+            // Ambil semua mata pelajaran dari header file (baris ke-7)
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
             $importData = [];
-            foreach ($rows->skip(7) as $row) {
+            foreach ($rows->skip(7) as $row) { // Mulai dari baris data siswa
                 $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
 
                 if ($student) {
+                    $rowArray = $row->toArray(); // Konversi ke array
+
+                    // Buat array yang berisi nilai dengan nama mata pelajaran
                     $scoresWithSubjects = [];
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
-                        $subjectName = $subjects->firstWhere('id', $subjectId)->name;
-                        $score = $row[$columnIndex] ?? 0;
+                        $subjectName = $subjects->firstWhere('id', $subjectId)->name; // Dapatkan nama subject
+                        $score = $rowArray[$columnIndex] ?? 0; // Ambil nilai, default 0 jika kosong
                         $scoresWithSubjects[] = [
                             'subject' => $subjectName,
                             'score' => $score,
@@ -282,8 +285,8 @@ class ManageGradeController extends Controller
                     }
 
                     $importData[] = [
-                        'name' => $row[1],
-                        'nisn' => $row[2],
+                        'name' => $row[1], // Nama siswa
+                        'nisn' => $row[2], // NISN
                         'schoolClass' => $student->schoolClass->name,
                         'major' => $student->major->name,
                         'entryYear' => $student->entryYear->year,
@@ -294,22 +297,19 @@ class ManageGradeController extends Controller
 
             $allImportData[] = [
                 'file_name' => $file->getClientOriginalName(),
+                'class' => $rows[2][1],
+                'yearRange' => explode(' ', $rows[3][1])[0],
+                'semester' => $this->getSemesterId($rows[2][1], strtolower(explode(' ', $rows[3][1])[1])),
                 'data' => $importData,
             ];
         }
 
-        // Simpan semua data ke session untuk digunakan di view
-        // Simpan data ke session untuk diakses di view
-        session([
-            'import_data' => $importData,
-            'class' => $rows[2][1],
-            'yearRange' => explode(' ', $rows[3][1])[0],
-            'semester' => $this->getSemesterId($rows[2][1], strtolower(explode(' ', $rows[3][1])[1])), // Simpan semester
-            'file_name' => $file->getClientOriginalName(),
-        ]);
+        // Simpan semua data ke session
+        session(['import_data' => $allImportData]);
 
         return view('manage_grades.preview');
     }
+
 
 
 
