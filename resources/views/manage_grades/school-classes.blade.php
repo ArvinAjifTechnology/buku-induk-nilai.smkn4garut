@@ -46,6 +46,7 @@
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group mb-1">
+                                    <small>Sebelum Import Silahkan Unduh Nilai Dan isi Nilai</small>
                                     <label for="file" class="form-label">Pilih File Excel untuk Diimpor:</label>
                                     <input type="file" name="file" id="file"
                                         class="form-control form-control-file" accept=".xls,.xlsx" required>
