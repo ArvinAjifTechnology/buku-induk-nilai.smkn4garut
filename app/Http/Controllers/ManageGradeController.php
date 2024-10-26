@@ -253,6 +253,35 @@ class ManageGradeController extends Controller
         }
     }
 
+    public function previewImport(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        $file = $request->file('file');
+        $import = new \App\Imports\GradesImport;
+        $rows = \Maatwebsite\Excel\Facades\Excel::toCollection($import, $file)->first();
+
+        // Ambil metadata kelas dan tahun pelajaran
+        $class = $rows[2][1];
+        $academicYearInfo = explode(' ', $rows[3][1]);
+        $yearRange = $academicYearInfo[0];
+        $semester = strtolower($academicYearInfo[1]);
+
+        // Simpan data ke dalam session
+        session([
+            'import_data' => $rows->skip(7), // Data siswa (baris 8 ke bawah)
+            'class' => $class,
+            'yearRange' => $yearRange,
+            'semester' => $semester,
+            'file_name' => $file->getClientOriginalName(),
+        ]);
+
+        return view('grades.preview');
+    }
+
+
     // public function import(Request $request)
     // {
     //     // Validasi file
