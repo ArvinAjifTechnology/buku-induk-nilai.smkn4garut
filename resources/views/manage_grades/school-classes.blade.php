@@ -79,7 +79,7 @@
                                 </div>
                             </div>
 
-                            {{-- <form action="{{ route('students-grades-import') }}" method="POST"
+                            <form action="{{ route('students-grades-import') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group mb-1">
@@ -90,7 +90,7 @@
                                 <button type="submit" class="btn btn-primary  btn-sm mt-1 mb-4">
                                     <i class="fas fa-upload"></i> Import
                                 </button>
-                            </form> --}}
+                            </form>
                             {{-- <!-- Input Nilai untuk Major -->
                         <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
                             class="btn btn-warning btn-sm mt-2">
