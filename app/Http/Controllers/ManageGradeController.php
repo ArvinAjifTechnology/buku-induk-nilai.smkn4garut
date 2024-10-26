@@ -394,7 +394,6 @@ class ManageGradeController extends Controller
     }
 
 
-
     private function getSemesterId(string $class, string $academicSemester)
     {
         $semesterNumber = 0;
