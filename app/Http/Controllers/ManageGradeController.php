@@ -329,7 +329,6 @@ class ManageGradeController extends Controller
         return $this->showCurrentFile();
     }
 
-
     public function confirmImport()
     {
         $allImportData = session('import_data');
