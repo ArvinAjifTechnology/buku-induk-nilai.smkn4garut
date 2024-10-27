@@ -347,30 +347,29 @@ class StudentExportController extends Controller
 
     protected function convertWordFilesToPdf($folderPath)
     {
-        // Dapatkan path semua PDF setelah konversi
-        $pdfPaths = $this->convertAllWordFilesToPdf($folderPath);
+        $files = File::allFiles($folderPath);
+        $pdfPaths = [];
 
-        if (empty($pdfPaths)) {
-            Log::error("No PDF files found for merging.");
-            return null;
-        }
+        foreach ($files as $file) {
+            if ($file->getExtension() === 'docx') {
+                $outputPdfPath = str_replace('.docx', '.pdf', $file->getRealPath());
 
-        $pdf = new \setasign\Fpdi\Fpdi();
+                // Jalankan perintah soffice dari PHP
+                $command = 'soffice --headless --convert-to pdf "' . $file->getRealPath() . '" --outdir "' . $file->getPath() . '"';
+                exec($command, $output, $resultCode);
 
-        // Proses penggabungan PDF
-        foreach ($pdfPaths as $pdfPath) {
-            $pageCount = $pdf->setSourceFile($pdfPath);
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $pdf->AddPage();
-                $pdf->useTemplate($pdf->importPage($i));
+                if ($resultCode === 0) {
+                    $pdfPaths[] = $outputPdfPath;
+                } else {
+                    Log::error("Gagal mengonversi: " . $file->getFilename());
+                }
             }
         }
 
-        $mergedPdfPath = storage_path('app/merged_students_report.pdf');
-        $pdf->Output($mergedPdfPath, 'F');
-
-        return $mergedPdfPath;
+        return $this->mergePdfFiles($pdfPaths);
     }
+
+    
 
 
 
