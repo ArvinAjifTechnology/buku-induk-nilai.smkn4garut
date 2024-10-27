@@ -348,18 +348,20 @@ class StudentExportController extends Controller
     protected function convertWordFilesToPdf($folderPath)
     {
         $dompdf = new \Dompdf\Dompdf();
-        $content = ''; // Menampung semua konten
+        $content = ''; // Menampung semua konten HTML
 
         $files = File::allFiles($folderPath);
         foreach ($files as $file) {
             if ($file->getExtension() === 'docx') {
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2021');
+                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2007');
 
-                foreach ($phpWord->getSections() as $section) {
-                    foreach ($section->getElements() as $element) {
-                        $content .= $this->extractTextFromElement($element); // Memanggil metode dengan benar
-                    }
-                }
+                // Konversi isi file Word ke HTML
+                $htmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
+                ob_start();
+                $htmlWriter->save('php://output'); // Tulis output ke buffer
+                $htmlContent = ob_get_clean();
+
+                $content .= $htmlContent; // Gabungkan konten dari setiap file
             }
         }
 
@@ -374,6 +376,7 @@ class StudentExportController extends Controller
 
         return $pdfPath;
     }
+
 
     /**
      * Fungsi rekursif untuk mengekstrak teks dari berbagai elemen Word.
