@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->foreignId('subject_type_id');
             $table->string('short')->unique();
             $table->text('description')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
