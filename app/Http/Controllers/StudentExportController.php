@@ -347,21 +347,29 @@ class StudentExportController extends Controller
 
     protected function convertWordFilesToPdf($folderPath)
     {
-        $pdf = new \setasign\Fpdi\Fpdi();
+        $files = File::allFiles($folderPath);
+        $pdfPaths = [];
 
-        foreach ($folderPath as $pdfPath) {
-            $pageCount = $pdf->setSourceFile($pdfPath);
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $pdf->AddPage();
-                $pdf->useTemplate($pdf->importPage($i));
+        foreach ($files as $file) {
+            if ($file->getExtension() === 'docx') {
+                $outputPdfPath = str_replace('.docx', '.pdf', $file->getRealPath());
+
+                // Jalankan LibreOffice via command line
+                $command = 'soffice --headless --convert-to pdf "' . $file->getRealPath() . '" --outdir "' . $file->getPath() . '"';
+                exec($command, $output, $resultCode);
+
+                if ($resultCode === 0) {
+                    $pdfPaths[] = $outputPdfPath;
+                } else {
+                    Log::error("Failed to convert: " . $file->getFilename());
+                }
             }
         }
 
-        $mergedPdfPath = storage_path('app/merged_students_report.pdf');
-        $pdf->Output($mergedPdfPath, 'F');
-
-        return $mergedPdfPath;
+        // Gabungkan semua PDF jika diperlukan
+        return $this->mergePdfFiles($pdfPaths);
     }
+
 
 
     /**
