@@ -9,6 +9,7 @@ use Dompdf\Dompdf;
 use App\Models\Major;
 use App\Models\Student;
 use App\Models\Subject;
+use setasign\Fpdi\Fpdi;
 use App\Models\Semester;
 use App\Models\EntryYear;
 use App\Models\SchoolClass;
