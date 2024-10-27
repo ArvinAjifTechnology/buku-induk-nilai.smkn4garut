@@ -347,34 +347,20 @@ class StudentExportController extends Controller
 
     protected function convertWordFilesToPdf($folderPath)
     {
-        $dompdf = new \Dompdf\Dompdf();
-        $content = ''; // Menampung semua konten HTML
+        $pdf = new \setasign\Fpdi\Fpdi();
 
-        $files = File::allFiles($folderPath);
-        foreach ($files as $file) {
-            if ($file->getExtension() === 'docx') {
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2007');
-
-                // Konversi isi file Word ke HTML
-                $htmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'HTML');
-                ob_start();
-                $htmlWriter->save('php://output'); // Tulis output ke buffer
-                $htmlContent = ob_get_clean();
-
-                $content .= $htmlContent; // Gabungkan konten dari setiap file
+        foreach ($folderPath as $pdfPath) {
+            $pageCount = $pdf->setSourceFile($pdfPath);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $pdf->AddPage();
+                $pdf->useTemplate($pdf->importPage($i));
             }
         }
 
-        // Render PDF dengan Dompdf
-        $dompdf->loadHtml($content);
-        $dompdf->setPaper('A4', 'portrait');
-        $dompdf->render();
+        $mergedPdfPath = storage_path('app/merged_students_report.pdf');
+        $pdf->Output($mergedPdfPath, 'F');
 
-        // Simpan PDF ke storage
-        $pdfPath = storage_path('app/merged_students_report.pdf');
-        file_put_contents($pdfPath, $dompdf->output());
-
-        return $pdfPath;
+        return $mergedPdfPath;
     }
 
 
