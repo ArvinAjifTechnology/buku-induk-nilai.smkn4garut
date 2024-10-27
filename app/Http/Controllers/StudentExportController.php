@@ -14,6 +14,7 @@ use App\Models\Semester;
 use App\Models\EntryYear;
 use App\Models\SchoolClass;
 use App\Models\SubjectType;
+use iio\libmergepdf\Merger;
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\PhpWord;
 use App\Exports\StudentsExport;
@@ -27,6 +28,7 @@ use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpWord\Element\Image;
 use PhpOffice\PhpWord\Element\TextRun;
+use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\Writer\Word2007\Element\Text;
@@ -393,7 +395,7 @@ class StudentExportController extends Controller
 
     protected function mergePdfFiles($pdfFiles)
     {
-        $merger = new \iio\libmergepdf\Merger();
+        $merger = new Merger();
 
         try {
             foreach ($pdfFiles as $pdf) {
