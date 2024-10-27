@@ -286,7 +286,8 @@ class StudentExportController extends Controller
             // dd($zip);
 
             // $pdfPath = $this->convertWordFilesToPdf($folderPath);
-            dd(response()->download($zip)->deleteFileAfterSend(false));
+            // dd(response()->download($zip)->deleteFileAfterSend(false));
+            return response()->download($zip)->deleteFileAfterSend(false);
 
             session()->flash('success', 'Dokumen Word untuk siswa ' . $student->full_name . ' berhasil disimpan di ' . $this->wordPath);
         } catch (\Exception $e) {
