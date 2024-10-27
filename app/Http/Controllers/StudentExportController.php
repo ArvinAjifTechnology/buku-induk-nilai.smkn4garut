@@ -380,8 +380,10 @@ class StudentExportController extends Controller
     {
         $outputDir = $file->getPath(); // Simpan di direktori yang sama
         $command = "soffice --headless --convert-to pdf \"{$file->getRealPath()}\" --outdir \"{$outputDir}\"";
+        // dd($command);
 
         $process = Process::fromShellCommandline($command);
+        // dd($process);
         $process->run();
 
         if ($process->isSuccessful()) {
