@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('uniqid')->unique();
             $table->string('name')->unique();
             $table->foreignId('major_id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
