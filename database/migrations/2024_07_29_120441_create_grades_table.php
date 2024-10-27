@@ -18,6 +18,7 @@ return new class extends Migration {
             $table->foreignId('subject_id');
             $table->foreignId('semester_id');
             $table->integer('score');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
