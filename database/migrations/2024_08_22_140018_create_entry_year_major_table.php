@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('entry_year_id');
             $table->foreignId('major_id');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
