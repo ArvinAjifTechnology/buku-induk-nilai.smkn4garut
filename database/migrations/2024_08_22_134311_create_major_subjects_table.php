@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('entry_year_id');
             $table->foreignId('major_id')->constrained()->onDelete('cascade');
             $table->foreignId('subject_id')->constrained()->onDelete('cascade');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
