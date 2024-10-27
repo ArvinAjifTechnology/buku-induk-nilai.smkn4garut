@@ -67,6 +67,7 @@ return new class extends Migration {
             $table->string('smk_skhun_number')->nullable();
             $table->date('exit_date')->nullable();
             $table->string('exit_reason')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
