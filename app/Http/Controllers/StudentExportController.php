@@ -347,59 +347,67 @@ class StudentExportController extends Controller
         return $zipPath;
     }
 
-    protected function convertWordFilesToPdf($folderPath)
+    public function convertWordFilesToPdf($folderPath)
     {
         $files = File::allFiles($folderPath);
-        $pdfPaths = [];
+        $convertedFiles = [];
 
         foreach ($files as $file) {
             if ($file->getExtension() === 'docx') {
-                $outputPdfPath = str_replace('.docx', '.pdf', $file->getRealPath());
-
-                // Perintah konversi LibreOffice
-                $command = 'soffice --headless --convert-to pdf "' . $file->getRealPath() . '" --outdir "' . $file->getPath() . '"';
-                exec($command, $output, $resultCode);
-
-                // Log hasil konversi
-                if ($resultCode === 0) {
-                    Log::info("Berhasil mengonversi: " . $file->getFilename());
-                    $pdfPaths[] = $outputPdfPath;
+                $result = $this->convertDocxToPdf($file);
+                if ($result) {
+                    $convertedFiles[] = $result;
+                    Log::info("Berhasil mengonversi: {$file->getFilename()}");
                 } else {
-                    Log::error("Gagal mengonversi: " . $file->getFilename());
-                    Log::error("Command Output: " . implode("\n", $output));
+                    Log::error("Gagal mengonversi: {$file->getFilename()}");
                 }
             }
         }
 
-        if (empty($pdfPaths)) {
-            throw new \Exception("Tidak ada file PDF yang berhasil dikonversi.");
+        if (empty($convertedFiles)) {
+            Log::error("Tidak ada file PDF yang berhasil dikonversi.");
+            return response()->json(['error' => 'Gagal konversi semua file.'], 500);
         }
 
-        // Gabungkan PDF
-        return $this->mergePdfFiles($pdfPaths);
+        // Gabungkan PDF jika diperlukan
+        $mergedPdfPath = $this->mergePdfFiles($convertedFiles);
+        return response()->download($mergedPdfPath);
     }
 
-
-    protected function mergePdfFiles(array $pdfPaths)
+    protected function convertDocxToPdf($file)
     {
-        $pdf = new Fpdi();
+        $outputDir = $file->getPath(); // Simpan di direktori yang sama
+        $command = "\"{$this->libreOfficePath}\" --headless --convert-to pdf \"{$file->getRealPath()}\" --outdir \"{$outputDir}\"";
 
-        foreach ($pdfPaths as $path) {
-            $pageCount = $pdf->setSourceFile($path);
+        $process = Process::fromShellCommandline($command);
+        $process->run();
 
-            // Tambahkan semua halaman dari setiap PDF
-            for ($i = 1; $i <= $pageCount; $i++) {
-                $pdf->AddPage();
-                $template = $pdf->importPage($i);
-                $pdf->useTemplate($template);
-            }
+        if ($process->isSuccessful()) {
+            $pdfFile = $outputDir . DIRECTORY_SEPARATOR . $file->getBasename('.docx') . '.pdf';
+            return File::exists($pdfFile) ? $pdfFile : false;
         }
 
-        // Simpan PDF hasil gabungan
-        $mergedPdfPath = storage_path('app/merged_students_report.pdf');
-        $pdf->Output($mergedPdfPath, 'F'); // Simpan ke file
+        Log::error("Command Output: " . $process->getErrorOutput());
+        return false;
+    }
 
-        return $mergedPdfPath;
+    protected function mergePdfFiles($pdfFiles)
+    {
+        $merger = new \iio\libmergepdf\Merger();
+
+        try {
+            foreach ($pdfFiles as $pdf) {
+                $merger->addFile($pdf);
+            }
+
+            $mergedPdfPath = storage_path('app/merged_students_report.pdf');
+            File::put($mergedPdfPath, $merger->merge());
+
+            return $mergedPdfPath;
+        } catch (\Exception $e) {
+            Log::error("Gagal menggabungkan PDF: " . $e->getMessage());
+            return false;
+        }
     }
 
 
