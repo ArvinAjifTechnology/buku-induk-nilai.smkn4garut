@@ -73,6 +73,9 @@ class StudentExportController extends Controller
 
     public function exportWord(Request $request)
     {
+        // Set batas memori dan waktu eksekusi
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', 300);
         $query = Student::query()->with(['schoolClass', 'major', 'entryYear']);
 
         if ($request->filled('student_id')) {
