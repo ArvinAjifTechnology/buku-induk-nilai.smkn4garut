@@ -282,13 +282,13 @@ class StudentExportController extends Controller
 
         try {
             $templateProcessor->saveAs($this->wordPath);
-            $zip = $this->downloadAsZip($folderPath);
+            // $zip = $this->downloadAsZip($folderPath);
             // dd($zip);
 
-            // $pdfPath = $this->convertWordFilesToPdf($folderPath);
+            $pdfPath = $this->convertWordFilesToPdf($folderPath);
             // dd(response()->download($zip)->deleteFileAfterSend(false));
             session()->flash('success', 'Dokumen Word untuk siswa ' . $student->full_name . ' berhasil disimpan di ' . $this->wordPath);
-            return response()->download($zip)->deleteFileAfterSend(false);
+            return response()->download($pdfPath)->deleteFileAfterSend(false);
 
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menyimpan dokumen Word: ' . $e->getMessage());
