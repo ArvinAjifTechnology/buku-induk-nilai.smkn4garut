@@ -74,7 +74,7 @@ class StudentExportController extends Controller
     public function exportWord(Request $request)
     {
         // Set batas memori dan waktu eksekusi
-        ini_set('memory_limit', '512M');
+        ini_set('memory_limit', '1G');
         ini_set('max_execution_time', 300);
         $query = Student::query()->with(['schoolClass', 'major', 'entryYear']);
 
@@ -282,13 +282,13 @@ class StudentExportController extends Controller
 
         try {
             $templateProcessor->saveAs($this->wordPath);
-            // $zip = $this->downloadAsZip($folderPath);
+            $zip = $this->downloadAsZip($folderPath);
             // dd($zip);
 
-            $pdfPath = $this->convertWordFilesToPdf($folderPath);
+            // $pdfPath = $this->convertWordFilesToPdf($folderPath);
             // dd(response()->download($zip)->deleteFileAfterSend(false));
             session()->flash('success', 'Dokumen Word untuk siswa ' . $student->full_name . ' berhasil disimpan di ' . $this->wordPath);
-            return response()->download($pdfPath)->deleteFileAfterSend(false);
+            return response()->download($zip)->deleteFileAfterSend(false);
 
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menyimpan dokumen Word: ' . $e->getMessage());
