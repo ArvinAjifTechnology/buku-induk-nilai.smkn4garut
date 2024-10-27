@@ -36,6 +36,7 @@ class StudentExportController extends Controller
 {
 
     protected $wordPath;
+    protected $libreOfficePath = 'C:\\Program Files\\LibreOffice\\program\\soffice.exe'; // Path LibreOffice
 
     public function index(Request $request)
     {
