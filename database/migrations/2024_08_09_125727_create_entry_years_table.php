@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('uniqid')->unique();
             $table->string('year')->unique();
+            $table->softDeletes();
             $table->timestamps();
         });
     }
