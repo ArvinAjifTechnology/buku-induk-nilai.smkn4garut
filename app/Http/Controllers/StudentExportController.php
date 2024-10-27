@@ -355,20 +355,29 @@ class StudentExportController extends Controller
             if ($file->getExtension() === 'docx') {
                 $outputPdfPath = str_replace('.docx', '.pdf', $file->getRealPath());
 
-                // Jalankan perintah soffice dari PHP
+                // Perintah konversi LibreOffice
                 $command = 'soffice --headless --convert-to pdf "' . $file->getRealPath() . '" --outdir "' . $file->getPath() . '"';
                 exec($command, $output, $resultCode);
 
+                // Log hasil konversi
                 if ($resultCode === 0) {
+                    Log::info("Berhasil mengonversi: " . $file->getFilename());
                     $pdfPaths[] = $outputPdfPath;
                 } else {
                     Log::error("Gagal mengonversi: " . $file->getFilename());
+                    Log::error("Command Output: " . implode("\n", $output));
                 }
             }
         }
 
+        if (empty($pdfPaths)) {
+            throw new \Exception("Tidak ada file PDF yang berhasil dikonversi.");
+        }
+
+        // Gabungkan PDF
         return $this->mergePdfFiles($pdfPaths);
     }
+
 
     protected function mergePdfFiles(array $pdfPaths)
     {
