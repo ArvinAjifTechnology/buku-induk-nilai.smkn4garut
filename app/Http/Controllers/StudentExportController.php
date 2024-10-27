@@ -379,7 +379,7 @@ class StudentExportController extends Controller
     protected function convertDocxToPdf($file)
     {
         $outputDir = $file->getPath(); // Simpan di direktori yang sama
-        $command = "\"{$this->libreOfficePath}\" --headless --convert-to pdf \"{$file->getRealPath()}\" --outdir \"{$outputDir}\"";
+        $command = "soffice --headless --convert-to pdf \"{$file->getRealPath()}\" --outdir \"{$outputDir}\"";
 
         $process = Process::fromShellCommandline($command);
         $process->run();
