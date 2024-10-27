@@ -353,7 +353,7 @@ class StudentExportController extends Controller
         $files = File::allFiles($folderPath);
         foreach ($files as $file) {
             if ($file->getExtension() === 'docx') {
-                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2013');
+                $phpWord = \PhpOffice\PhpWord\IOFactory::load($file->getRealPath(), 'Word2021');
 
                 foreach ($phpWord->getSections() as $section) {
                     foreach ($section->getElements() as $element) {
