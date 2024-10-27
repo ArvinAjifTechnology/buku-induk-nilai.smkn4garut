@@ -369,7 +369,27 @@ class StudentExportController extends Controller
         return $this->mergePdfFiles($pdfPaths);
     }
 
-    
+    protected function mergePdfFiles(array $pdfPaths)
+    {
+        $pdf = new Fpdi();
+
+        foreach ($pdfPaths as $path) {
+            $pageCount = $pdf->setSourceFile($path);
+
+            // Tambahkan semua halaman dari setiap PDF
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $pdf->AddPage();
+                $template = $pdf->importPage($i);
+                $pdf->useTemplate($template);
+            }
+        }
+
+        // Simpan PDF hasil gabungan
+        $mergedPdfPath = storage_path('app/merged_students_report.pdf');
+        $pdf->Output($mergedPdfPath, 'F'); // Simpan ke file
+
+        return $mergedPdfPath;
+    }
 
 
 
