@@ -66,6 +66,7 @@ class SchoolClassController extends Controller
 
     public function destroy(SchoolClass $schoolClass)
     {
+        $schoolClass->students()->detach();
         $schoolClass->delete();
 
         return redirect()->route('school_classes.index')
