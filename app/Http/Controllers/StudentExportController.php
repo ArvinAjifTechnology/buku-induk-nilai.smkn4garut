@@ -95,6 +95,8 @@ class StudentExportController extends Controller
             $query->where('student_statuses', $request->student_statuses);
         }
 
+        $query->orderBy('nisn', 'asc');
+
         $students = $query->get();
 
         if ($students->isEmpty()) {
@@ -280,9 +282,9 @@ class StudentExportController extends Controller
             $zip = $this->downloadAsZip($folderPath);
             // dd($zip);
 
-            $pdfPath = $this->convertWordFilesToPdf($folderPath);
+            // $pdfPath = $this->convertWordFilesToPdf($folderPath);
+            dd(response()->download($zip)->deleteFileAfterSend(false));
 
-            return response()->download($pdfPath)->deleteFileAfterSend(false);
             session()->flash('success', 'Dokumen Word untuk siswa ' . $student->full_name . ' berhasil disimpan di ' . $this->wordPath);
         } catch (\Exception $e) {
             session()->flash('error', 'Gagal menyimpan dokumen Word: ' . $e->getMessage());
