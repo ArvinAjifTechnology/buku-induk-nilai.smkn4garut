@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Grade extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+    // use SoftDeletes;
 
     protected $guarded = ['id'];
 
