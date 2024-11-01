@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Student;
+use App\Models\SubjectType;
 
 class SubjetTypeObserver
 {
@@ -44,5 +45,17 @@ class SubjetTypeObserver
     public function forceDeleted(Student $student): void
     {
         //
+    }
+
+    /**
+     * Handle the Subject "deleting" event.
+     *
+     * @param  \App\Models\Subject  $major
+     * @return void
+     */
+    public function deleting(SubjectType $subjectType)
+    {
+        // Hapus semua grades yang terkait dengan subject ini
+        $subjectType->subjects()->delete();
     }
 }
