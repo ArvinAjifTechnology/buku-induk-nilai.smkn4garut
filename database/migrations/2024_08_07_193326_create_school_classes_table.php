@@ -12,9 +12,9 @@ return new class extends Migration {
     {
         Schema::create('school_classes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('major_id')->constrained()->onDelete('cascade');
             $table->string('uniqid')->unique();
             $table->string('name')->unique();
-            $table->foreignId('major_id');
             $table->softDeletes();
             $table->timestamps();
         });
