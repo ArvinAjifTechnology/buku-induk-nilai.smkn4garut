@@ -13,8 +13,8 @@ return new class extends Migration {
         Schema::create('specializations', function (Blueprint $table) {
             $table->id();
             $table->string('uniqid')->unique();
+            $table->foreignId('major_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->foreignId('major_id');
             $table->string('short')->unique();
             $table->timestamps();
         });
