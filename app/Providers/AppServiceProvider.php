@@ -17,6 +17,7 @@ use App\Observers\SubjetTypeObserver;
 use Illuminate\Support\Facades\Blade;
 use App\Observers\SchoolClassObserver;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -44,7 +45,7 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
 
         Blade::if('role', function ($role) {
-            return auth()->check() && auth()->user()->role == $role;
+            return Auth::check() && Auth::user()->role == $role;
         });
     }
 }
