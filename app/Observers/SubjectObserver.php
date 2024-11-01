@@ -45,4 +45,17 @@ class SubjectObserver
     {
         //
     }
+
+    /**
+     * Handle the Subject "deleting" event.
+     *
+     * @param  \App\Models\Subject  $major
+     * @return void
+     */
+    public function deleting(Subject $subject)
+    {
+        // Hapus semua grades yang terkait dengan subject ini
+        $subject->grades()->delete();
+    }
+
 }

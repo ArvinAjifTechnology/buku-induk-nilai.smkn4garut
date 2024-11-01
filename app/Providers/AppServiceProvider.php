@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Major;
+use App\Models\Student;
 use App\Models\Subject;
 use App\Models\EntryYear;
 use App\Observers\MajorObserver;
+use App\Observers\StudentObserver;
 use App\Observers\SubjectObserver;
 use App\Observers\EntryYearObserver;
 use Illuminate\Pagination\Paginator;
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         EntryYear::observe(EntryYearObserver::class);
         Artisan::call('db:seed', ['--class' => 'EntryYearSeeder']);
         Artisan::call('db:seed', ['--class' => 'GraduationYearSeeder']);
+        Student::observe(StudentObserver::class);
         Paginator::useBootstrapFive();
 
         Blade::if('role', function ($role) {
