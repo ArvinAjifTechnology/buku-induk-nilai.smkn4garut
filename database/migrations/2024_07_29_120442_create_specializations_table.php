@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('specializations', function (Blueprint $table) {
             $table->id();
             $table->string('uniqid')->unique();
-            $table->foreignId('major_id')->constrained()->onDelete('cascade');
+            $table->foreignId('major_id');
             $table->string('name');
             $table->string('short')->unique();
             $table->timestamps();

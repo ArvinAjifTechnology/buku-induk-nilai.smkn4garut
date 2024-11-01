@@ -12,9 +12,9 @@ return new class extends Migration {
     {
         Schema::create('entry_year_major_subject', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('subject_id')->constrained()->onDelete('cascade');
-            $table->foreignId('entry_year_id')->constrained()->onDelete('cascade');
-            $table->foreignId('major_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subject_id');
+            $table->foreignId('entry_year_id');
+            $table->foreignId('major_id');
             $table->softDeletes();
             $table->timestamps();
         });

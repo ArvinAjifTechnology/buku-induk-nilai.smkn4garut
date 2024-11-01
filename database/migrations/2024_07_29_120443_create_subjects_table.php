@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('subjects', function (Blueprint $table) {
             $table->id();
             $table->string('uniqid')->unique();
-            $table->foreignId('subject_type_id')->constrained()->onDelete('cascade');
+            $table->foreignId('subject_type_id');
             $table->string('name');
             $table->string('short')->unique();
             $table->text('description')->nullable();
