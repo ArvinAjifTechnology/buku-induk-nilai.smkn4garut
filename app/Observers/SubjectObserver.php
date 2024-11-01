@@ -49,7 +49,7 @@ class SubjectObserver
     /**
      * Handle the Subject "deleting" event.
      *
-     * @param  \App\Models\Subject  $major
+     * @param  \App\Models\Subject  $subject
      * @return void
      */
     public function deleting(Subject $subject)
