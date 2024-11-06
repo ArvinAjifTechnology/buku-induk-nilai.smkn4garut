@@ -183,7 +183,7 @@
     </div>
     </div>
 
-    @include('students_exports.merge-word-pdf-javascript')
+    {{-- @include('students_exports.merge-word-pdf-javascript') --}}
 @endsection
 
 @push('js')
