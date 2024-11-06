@@ -5,7 +5,7 @@ namespace App\Observers;
 use App\Models\Student;
 use App\Models\SubjectType;
 
-class SubjetTypeObserver
+class SubjectTypeObserver
 {
     /**
      * Handle the Student "created" event.
