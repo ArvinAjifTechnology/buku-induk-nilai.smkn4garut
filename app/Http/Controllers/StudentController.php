@@ -32,7 +32,7 @@ class StudentController extends Controller
         $schoolClasses = SchoolClass::all();
         // $schoolClasses = SchoolClass::all(); // Ambil semua data kelas
         $students = Student::with(['schoolClass', 'major', 'entryYear'])
-            ->orderBy('entry_year_id', 'desc')
+            ->orderBy('entry_year_id', 'asc')
             ->orderBy('school_class_id', 'asc')
             ->orderBy('full_name', 'asc')
             ->paginate(10);
