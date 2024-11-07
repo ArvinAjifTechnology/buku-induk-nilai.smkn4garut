@@ -13,11 +13,12 @@ use App\Observers\StudentObserver;
 use App\Observers\SubjectObserver;
 use App\Observers\EntryYearObserver;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Auth;
 use App\Observers\SubjetTypeObserver;
 use Illuminate\Support\Facades\Blade;
 use App\Observers\SchoolClassObserver;
+use App\Observers\SubjectTypeObserver;
 use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -37,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
         Major::observe(MajorObserver::class);
         Subject::observe(SubjectObserver::class);
         SchoolClass::observe(SchoolClassObserver::class);
-        SubjectType::observe(SubjetTypeObserver::class);
+        SubjectType::observe(SubjectTypeObserver::class);
         EntryYear::observe(EntryYearObserver::class);
         Student::observe(StudentObserver::class);
         Artisan::call('db:seed', ['--class' => 'EntryYearSeeder']);
