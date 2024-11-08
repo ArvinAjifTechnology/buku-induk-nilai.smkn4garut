@@ -113,15 +113,15 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
+                        {{-- <a href="{{ route('manage-grades.form', [$schoolClass->uniqid ?? '', $entryYear->uniqid, $students->first()->major->uniqid]) }}"
                             class="btn btn-warning me-2">
                             <i class="fas fa-edit"></i> Input Nilai Siswa Perkelas
-                        </a>
+                        </a> --}}
                     @else
-                        <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
+                        {{-- <a href="{{ route('manage-grades.form-by-major', ['majorUniqid' => $major->uniqid, 'entryYearUniqid' => $entryYear->uniqid]) }}"
                             class="btn btn-warning me-2">
                             <i class="fas fa-edit"></i> Input Nilai Siswa Perjurusan
-                        </a>
+                        </a> --}}
                     @endif
                 </div>
 
@@ -140,7 +140,7 @@
                         </a>
                     </div>
                     <!-- Import Form -->
-                    <div class="card shadow-sm mb-4">
+                    <div class="card shadow-sm mb-4 mt-3">
                         <div class="card-header text-white">
                             <h4 class="mb-0"><i class="fas fa-upload"></i> Import Nilai Siswa</h4>
                         </div>
