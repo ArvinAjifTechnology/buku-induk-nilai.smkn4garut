@@ -28,7 +28,7 @@
     @endif
 
     <h1>
-        <i class="fas fa-calendar-alt"></i> {{ $entryYear->year }}
+        <i class="fas fa-calendar-alt"></i> Daftar Jurusan Di Tahun {{ $entryYear->year }}
     </h1>
 
     <div class="row">
