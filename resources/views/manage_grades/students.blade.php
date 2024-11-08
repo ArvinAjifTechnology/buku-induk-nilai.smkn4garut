@@ -4,7 +4,9 @@
     <div class="container">
         <div class="row">
             <h1 class="mb-4">Daftar Nilai Siswa
-                {{ $entryYear->year }}{{ isset($schoolClass) ? ' / ' . $schoolClass->name : '' }}</h1>
+                {{ $entryYear->year }}{{ isset($schoolClass) ? ' / ' . $schoolClass->name : '' }}{{ isset($major) ? ' / ' . $major->name : '' }}
+            </h1>
+
 
             <!-- Error Messages -->
             @if (session('errors'))
@@ -45,7 +47,8 @@
                             <div class="modal-dialog modal-lg">
                                 <div class="modal-content">
                                     <div class="modal-header">
-                                        <h5 class="modal-title" id="importModalLabel"> <i class="fas fa-file-excel"></i> Import Nilai Siswa</h5>
+                                        <h5 class="modal-title" id="importModalLabel"> <i class="fas fa-file-excel"></i>
+                                            Import Nilai Siswa</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                             aria-label="Close"></button>
                                     </div>
@@ -55,13 +58,15 @@
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link active" id="file-import-tab" data-bs-toggle="tab"
                                                     data-bs-target="#file-import" type="button" role="tab"
-                                                    aria-controls="file-import" aria-selected="true"><i class="fas fa-file-excel"></i>  Import dari
+                                                    aria-controls="file-import" aria-selected="true"><i
+                                                        class="fas fa-file-excel"></i> Import dari
                                                     File Excel</button>
                                             </li>
                                             <li class="nav-item" role="presentation">
                                                 <button class="nav-link" id="eraport-import-tab" data-bs-toggle="tab"
                                                     data-bs-target="#eraport-import" type="button" role="tab"
-                                                    aria-controls="eraport-import" aria-selected="false"><i class="fas fa-file-excel"></i> Import dari
+                                                    aria-controls="eraport-import" aria-selected="false"><i
+                                                        class="fas fa-file-excel"></i> Import dari
                                                     E-Raport</button>
                                             </li>
                                         </ul>
