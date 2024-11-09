@@ -277,7 +277,7 @@
 
                 <!-- Chart Student Growth -->
                 <div class="row">
-                    @include('dashboard.chart.student-growth')
+                    {{-- @include('dashboard.chart.student-growth') --}}
                 </div>
             </div>
         </div>
@@ -285,12 +285,12 @@
         <!-- Additional Sections -->
         <div class="container">
             <div class="row">
-                @include('dashboard.chart.grades-statistic')
+                {{-- @include('dashboard.chart.grades-statistic') --}}
             </div>
         </div>
         <!-- Chart Subject Completion -->
         <div class="row">
-            @include('dashboard.chart.subject-completion')
+            {{-- @include('dashboard.chart.subject-completion') --}}
         </div>
         <div class="row">
             @include('dashboard.chart.grade-range-chart')
@@ -300,6 +300,8 @@
 
 @push('js')
     <!-- Script to toggle tab pane visibility -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/larapex-charts@latest/dist/larapex-charts.js"></script>
     <script>
         document.getElementById('learn-more-btn').addEventListener('click', function() {
             var tabsSection = document.getElementById('tabs-section');
@@ -382,15 +384,14 @@
             }
         });
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/larapex-charts@latest/dist/larapex-charts.js"></script>
 
     <!-- JavaScript untuk AJAX -->
     {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
-    {!! $studentStatusesChart->script() !!}
-    {!! $studentGrowthChart->script() !!}
-    {!! $genderDistributionChart->script() !!}
-    {!! $statisticGradeChart->script() !!}
-    {!! $subjectCompletionChart->script() !!}
+
+    <script></script>
+    {{-- {!! $studentGrowthChart->script() !!} --}}
+    {{-- {!! $genderDistributionChart->script() !!} --}}
+    {{-- {!! $statisticGradeChart->script() !!} --}}
+    {{-- {!! $subjectCompletionChart->script() !!} --}}
     {!! $gradeRangeChart->script() !!}
 @endpush
