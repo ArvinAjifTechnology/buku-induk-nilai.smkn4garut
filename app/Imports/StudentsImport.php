@@ -83,7 +83,6 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 continue;
             }
 
-
             $genderMapping = [
                 'Laki-Laki' => 'male',
                 'Perempuan' => 'female'
@@ -94,10 +93,9 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 'Keluar' => 'dropped_out'
             ];
 
-           // Cek apakah data siswa sudah ada berdasarkan NIS
+            // Cek apakah data siswa sudah ada berdasarkan NIS
             $existingStudent = Student::where('nis', $data['nis'])->first();
-
-            $studentId = $existingStudent ? $existingStudent->id : null; // Dapatkan ID jika siswa sudah ada
+            $studentId = $existingStudent ? $existingStudent->id : null;
 
             foreach ($rows as $index => $row) {
                 $validator = Validator::make($data->toArray(), [
@@ -105,66 +103,57 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                     'nik' => 'required|unique:students,nik,' . $studentId,
                     'nis' => 'required|unique:students,nis,' . $studentId,
                 ]);
-                $schoolClass = SchoolClass::where('name', $data['kelas'])->first();
+
+                // Cek apakah Major ada, atau buat jika belum ada
+                $major = Major::firstOrCreate(['name' => $data['jurusan']]);
+
+                // Cek apakah SchoolClass ada, atau buat jika belum ada dan hubungkan ke Major
+                $schoolClass = SchoolClass::firstOrCreate(
+                    ['name' => $data['kelas']],
+                    ['major_id' => $major->id]
+                );
+
                 if (!$schoolClass) {
                     $errors[] = [
                         'index' => $index + 1,
-                        '$row' => $row,
+                        'row' => $row,
                         'errors' => "Kelas '{$data['kelas']}' tidak ditemukan."
                     ];
                     continue;
                 }
 
-                $major = Major::find($schoolClass->major_id);
                 if (!$major) {
                     $errors[] = [
                         'index' => $index + 1,
-                        '$row' => $row,
-                        'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan."
+                        'row' => $row,
+                        'errors' => "Jurusan '{$data['jurusan']}' tidak ditemukan."
                     ];
                     continue;
                 }
 
                 if ($validator->fails()) {
-                    // Store the errors along with the index (row number)
                     $errors[] = [
-                        'index' => $index + 1, // To make the index human-readable (1-based)
-                        'row' => $row, // The specific row data
-                        'errors' => $validator->errors()->all() // The validation errors
+                        'index' => $index + 1,
+                        'row' => $row,
+                        'errors' => $validator->errors()->all()
                     ];
                 }
             }
-            // dd($errors);
 
-            // If there are any validation errors, pass them to the session
             if (!empty($errors)) {
                 return redirect()->back()
-                    ->with('bulk_errors', $errors) // Pass the entire errors array
-                    ->withInput(); // Keep form input data
+                    ->with('bulk_errors', $errors)
+                    ->withInput();
             }
 
+            $schoolClassId = $schoolClass->id;
+            $majorId = $major->id;
 
-            // $errors[] = [
-            //     'row' => $row, // Store row data that failed
-            //     'errors' => $validator->errors()->all() // Store the validation errors
-            // ];
-
-
-            // if (!empty($errors)) {
-            //     return redirect()->back()
-            //         ->with('bulk_errors', $errors) // Store the entire set of errors for bulk processing
-            //         ->withInput(); // Keep input intact for the form fields
-            // }
-
-
-            $schoolClassId = SchoolClass::where('name', $data['kelas'])->value('id');
-            $schoolClass = SchoolClass::find($schoolClassId);
-            $majorId = $schoolClass ? Major::where('id', $schoolClass->major_id)->value('id') : null;
-
-            // Handle dates
+            // Proses tanggal
             $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_lahir'])->format('Y-m-d');
             $entryDate = $data['tanggal_masuk'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_masuk'])->format('Y-m-d') : null;
             $exitDate = $data['tanggal_keluar'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_keluar'])->format('Y-m-d') : null;
+        
 
             // Create or update student
             Student::updateOrCreate(
