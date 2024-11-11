@@ -3,7 +3,6 @@
 namespace App\Imports;
 
 use App\Models\Major;
-use GuzzleHttp\Client;
 use App\Models\Student;
 use App\Models\EntryYear;
 use App\Models\SchoolClass;
@@ -11,7 +10,6 @@ use App\Models\GraduationYear;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-use GuzzleHttp\Exception\RequestException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -81,8 +79,10 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             });
 
             if ($data->filter()->isEmpty()) {
+                // Jika seluruh kolom kosong, lewati baris ini
                 continue;
             }
+
 
             $genderMapping = [
                 'Laki-Laki' => 'male',
@@ -94,9 +94,10 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 'Keluar' => 'dropped_out'
             ];
 
-            // Cek apakah data siswa sudah ada berdasarkan NIS
+           // Cek apakah data siswa sudah ada berdasarkan NIS
             $existingStudent = Student::where('nis', $data['nis'])->first();
-            $studentId = $existingStudent ? $existingStudent->id : null;
+
+            $studentId = $existingStudent ? $existingStudent->id : null; // Dapatkan ID jika siswa sudah ada
 
             foreach ($rows as $index => $row) {
                 $validator = Validator::make($data->toArray(), [
@@ -104,77 +105,66 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                     'nik' => 'required|unique:students,nik,' . $studentId,
                     'nis' => 'required|unique:students,nis,' . $studentId,
                 ]);
-
-                // Cek apakah data jurusan ada berdasarkan nama jurusan
-                $major = Major::firstOrCreate(
-                    ['name' => $data['jurusan']],
-                    ['description' => $this->searchWikipediaForMajor($data['jurusan'])]
-                );
-
-                // Jika Major kosong, gunakan API Wikipedia untuk menebak jurusan
-                if (!$major) {
-                    $wikipediaMajor = $this->searchWikipediaForMajor($data['kelas']);
-                    if ($wikipediaMajor) {
-                        // Jika Wikipedia menemukan jurusan, simpan ke database
-                        $major = Major::create(['name' => $wikipediaMajor]);
-                    } else {
-                        $errors[] = [
-                            'index' => $index + 1,
-                            'row' => $row,
-                            'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan di Wikipedia."
-                        ];
-                        continue;
-                    }
-                }
-
-                // Cek apakah SchoolClass ada, atau buat jika belum ada dan hubungkan ke Major
-                $schoolClass = SchoolClass::firstOrCreate(
-                    ['name' => $data['kelas']],
-                    ['major_id' => $major->id]
-                );
-
+                $schoolClass = SchoolClass::where('name', $data['kelas'])->first();
                 if (!$schoolClass) {
                     $errors[] = [
                         'index' => $index + 1,
-                        'row' => $row,
+                        '$row' => $row,
                         'errors' => "Kelas '{$data['kelas']}' tidak ditemukan."
                     ];
                     continue;
                 }
 
+                $major = Major::find($schoolClass->major_id);
                 if (!$major) {
                     $errors[] = [
                         'index' => $index + 1,
-                        'row' => $row,
-                        'errors' => "Jurusan '{$data['jurusan']}' tidak ditemukan."
+                        '$row' => $row,
+                        'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan."
                     ];
                     continue;
                 }
 
                 if ($validator->fails()) {
+                    // Store the errors along with the index (row number)
                     $errors[] = [
-                        'index' => $index + 1,
-                        'row' => $row,
-                        'errors' => $validator->errors()->all()
+                        'index' => $index + 1, // To make the index human-readable (1-based)
+                        'row' => $row, // The specific row data
+                        'errors' => $validator->errors()->all() // The validation errors
                     ];
                 }
             }
+            // dd($errors);
 
+            // If there are any validation errors, pass them to the session
             if (!empty($errors)) {
                 return redirect()->back()
-                    ->with('bulk_errors', $errors)
-                    ->withInput();
+                    ->with('bulk_errors', $errors) // Pass the entire errors array
+                    ->withInput(); // Keep form input data
             }
 
-            $schoolClassId = $schoolClass->id;
-            $majorId = $major->id;
 
-            // Proses tanggal
+            // $errors[] = [
+            //     'row' => $row, // Store row data that failed
+            //     'errors' => $validator->errors()->all() // Store the validation errors
+            // ];
+
+
+            // if (!empty($errors)) {
+            //     return redirect()->back()
+            //         ->with('bulk_errors', $errors) // Store the entire set of errors for bulk processing
+            //         ->withInput(); // Keep input intact for the form fields
+            // }
+
+
+            $schoolClassId = SchoolClass::where('name', $data['kelas'])->value('id');
+            $schoolClass = SchoolClass::find($schoolClassId);
+            $majorId = $schoolClass ? Major::where('id', $schoolClass->major_id)->value('id') : null;
+
+            // Handle dates
             $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_lahir'])->format('Y-m-d');
             $entryDate = $data['tanggal_masuk'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_masuk'])->format('Y-m-d') : null;
             $exitDate = $data['tanggal_keluar'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_keluar'])->format('Y-m-d') : null;
-
-
 
             // Create or update student
             Student::updateOrCreate(
@@ -238,38 +228,6 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             Log::info('Successfully processed row: ' . json_encode($data->toArray()));
         }
     }
-
-
-
-
-    public function searchWikipediaForMajor($className)
-    {
-        $client = new Client();
-        $url = "https://id.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&titles=" . urlencode("Jurusan_" . $className);
-
-        try {
-            // Melakukan request ke Wikipedia API
-            $response = $client->get($url);
-            $data = json_decode($response->getBody(), true);
-
-            // Memastikan respons berisi data yang diharapkan
-            if (isset($data['query']['pages'])) {
-                $pages = $data['query']['pages'];
-                $page = reset($pages); // Ambil halaman pertama
-
-                if (isset($page['extract']) && !empty($page['extract'])
-                ) {
-                    return $page['extract']; // Mengembalikan ringkasan artikel
-                }
-            }
-            // Mengembalikan null jika artikel tidak ditemukan
-            return "Informasi jurusan untuk '{$className}' tidak ditemukan di Wikipedia.";
-        } catch (RequestException $e) {
-            // Menangani error jika ada masalah dengan request
-            return "Terjadi kesalahan saat menghubungi Wikipedia API: " . $e->getMessage();
-        }
-    }
-
 
 
     public function sheets(): array
