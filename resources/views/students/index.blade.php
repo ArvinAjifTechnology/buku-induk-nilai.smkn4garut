@@ -233,20 +233,22 @@
                             <!-- Baris untuk Form -->
                             <div class="row">
                                 <div class="col-md-12 d-flex flex-column gap-3">
+                                    <small>Upload Photo Siswa:</small>
                                     {{-- Form Upload Foto --}}
                                     <form action="{{ route('students.upload-photo.submit') }}" method="POST"
-                                        enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="input-group">
-                                            <input type="file" class="form-control" name="photos[]" accept="image/*"
-                                                multiple required>
-                                            <button type="submit" class="btn btn-warning">
-                                                <i class="fas fa-upload"></i> Upload Foto
-                                            </button>
-                                        </div>
-                                    </form>
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="input-group">
+                                        <input type="file" class="form-control" name="photos[]" accept="image/*"
+                                        multiple required>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-upload"></i> Upload Foto
+                                        </button>
+                                    </div>
+                                </form>
 
-                                    {{-- Form Import --}}
+                                {{-- Form Import --}}
+                                <small>Import Data Siswa</small>
                                     <form action="{{ route('students.import') }}" method="POST"
                                         enctype="multipart/form-data">
                                         @csrf
