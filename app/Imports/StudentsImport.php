@@ -81,7 +81,6 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             });
 
             if ($data->filter()->isEmpty()) {
-                // Jika seluruh kolom kosong, lewati baris ini
                 continue;
             }
 
@@ -106,8 +105,24 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                     'nis' => 'required|unique:students,nis,' . $studentId,
                 ]);
 
-                // Cek apakah Major ada, atau buat jika belum ada
+                // Jika jurusan belum ada, coba cari otomatis di Wikipedia
                 $major = Major::firstOrCreate(['name' => $data['jurusan']]);
+
+                // Jika Major kosong, gunakan API Wikipedia untuk menebak jurusan
+                if (!$major) {
+                    $wikipediaMajor = $this->searchWikipediaForMajor($data['kelas']);
+                    if ($wikipediaMajor) {
+                        // Jika Wikipedia menemukan jurusan, simpan ke database
+                        $major = Major::create(['name' => $wikipediaMajor]);
+                    } else {
+                        $errors[] = [
+                            'index' => $index + 1,
+                            'row' => $row,
+                            'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan di Wikipedia."
+                        ];
+                        continue;
+                    }
+                }
 
                 // Cek apakah SchoolClass ada, atau buat jika belum ada dan hubungkan ke Major
                 $schoolClass = SchoolClass::firstOrCreate(
@@ -155,6 +170,7 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_lahir'])->format('Y-m-d');
             $entryDate = $data['tanggal_masuk'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_masuk'])->format('Y-m-d') : null;
             $exitDate = $data['tanggal_keluar'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_keluar'])->format('Y-m-d') : null;
+
 
 
             // Create or update student
