@@ -331,12 +331,20 @@ class ManageGradeController extends Controller
                     $scoresWithSubjects = [];
 
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
+                        // Pastikan subjectId ada di $subjectIds
+                        if (isset($subjectIds[$subjectId])) {
+                            $subjectName = $subjectIds[$subjectId]; // Ambil nama subject yang sudah ada
+                        } else {
+                            // Jika tidak ada, beri nilai default atau tangani error
+                            $subjectName = 'Unknown Subject';
+                        }
+
                         // Ambil nilai dari kolom yang sesuai
                         $score = $rowArray[$columnIndex] ?? 0;
 
                         // Masukkan data nilai dan subject ke dalam array
                         $scoresWithSubjects[] = [
-                            'subject' => $subjectIds[$subjectId],
+                            'subject' => $subjectName,
                             'score' => $score,
                         ];
 
@@ -385,6 +393,7 @@ class ManageGradeController extends Controller
 
         return $this->showCurrentFile();
     }
+
 
 
 
