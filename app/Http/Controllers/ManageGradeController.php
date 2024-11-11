@@ -9,6 +9,7 @@ use App\Models\Subject;
 use App\Models\Semester;
 use App\Models\EntryYear;
 use App\Models\SchoolClass;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Imports\GradesImport;
 use Illuminate\Support\Facades\DB;
