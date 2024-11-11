@@ -289,6 +289,23 @@ class ManageGradeController extends Controller
             $subjects = Subject::all();
             $subjectIndex = $this->mapSubjectIndex($rows[6]->toArray(), $subjects);
 
+            // Tambahkan subject jika tidak ada di awal proses
+            foreach ($subjectIndex as $subjectName => $columnIndex) {
+                $subject = DB::table('subjects')->where('name', $subjectName)->first();
+
+                if (!$subject) {
+                    // Buat subject baru jika belum ada
+                    $subjectId = DB::table('subjects')->insertGetId([
+                        'name' => $subjectName,
+                    ]);
+                    // Update $subjectIndex agar id terbaru subject tersimpan untuk proses berikutnya
+                    $subjectIndex[$subjectName] = $subjectId;
+                } else {
+                    // Jika subject sudah ada, ambil ID-nya untuk digunakan dalam proses data
+                    $subjectIndex[$subjectName] = $subject->id;
+                }
+            }
+
             $importData = [];
             foreach ($rows->skip(7) as $row) {
                 $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
@@ -298,21 +315,8 @@ class ManageGradeController extends Controller
                     $scoresWithSubjects = [];
 
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
-                        // Cek apakah subject ada, jika tidak, buat baru
-                        $subject = DB::table('subjects')->where('id', $subjectId)->first();
-
-                        if (!$subject) {
-                            // Jika subject tidak ada, buat subject baru
-                            $subjectName = $rowArray[$columnIndex]; // Anda bisa menggunakan nama dari nilai yang ada di baris
-                            $subjectId = DB::table('subjects')->insertGetId([
-                                'name' => $subjectName,
-                            ]);
-                            $subjectName = $subjectName;  // Ambil nama subject yang baru dibuat
-                        } else {
-                            $subjectName = $subject->name; // Ambil nama subject jika sudah ada
-                        }
-
-                        // Ambil nilai dari kolom yang sesuai
+                        // Ambil nama subject berdasarkan ID-nya
+                        $subjectName = DB::table('subjects')->where('id', $subjectId)->value('name');
                         $score = $rowArray[$columnIndex] ?? 0;
 
                         // Masukkan data nilai dan subject ke dalam array
@@ -366,6 +370,7 @@ class ManageGradeController extends Controller
 
         return $this->showCurrentFile();
     }
+
 
     public function showCurrentFile()
     {
