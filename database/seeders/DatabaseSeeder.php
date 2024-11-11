@@ -42,6 +42,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GraduationYearSeeder::class);
         $this->call(SubjectTypeSeeder::class);
         $this->call(SubjectSeeder::class);
-        Student::factory(8200)->create();
+        // Student::factory(8200)->create();
     }
 }
