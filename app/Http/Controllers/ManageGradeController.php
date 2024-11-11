@@ -292,18 +292,43 @@ class ManageGradeController extends Controller
             $importData = [];
             foreach ($rows->skip(7) as $row) {
                 $student = Student::where('nisn', $row[2])->with(['schoolClass', 'major', 'entryYear'])->first();
+
                 if ($student) {
                     $rowArray = $row->toArray();
                     $scoresWithSubjects = [];
 
                     foreach ($subjectIndex as $subjectId => $columnIndex) {
-                        $subjectName = $subjects->firstWhere('id', $subjectId)->name;
+                        // Cek apakah subject ada, jika tidak, buat baru
+                        $subject = DB::table('subjects')->where('id', $subjectId)->first();
+
+                        if (!$subject) {
+                            // Jika subject tidak ada, buat subject baru
+                            $subjectName = $rowArray[$columnIndex]; // Anda bisa menggunakan nama dari nilai yang ada di baris
+                            $subjectId = DB::table('subjects')->insertGetId([
+                                'name' => $subjectName,
+                            ]);
+                            $subjectName = $subjectName;  // Ambil nama subject yang baru dibuat
+                        } else {
+                            $subjectName = $subject->name; // Ambil nama subject jika sudah ada
+                        }
+
+                        // Ambil nilai dari kolom yang sesuai
                         $score = $rowArray[$columnIndex] ?? 0;
 
+                        // Masukkan data nilai dan subject ke dalam array
                         $scoresWithSubjects[] = [
                             'subject' => $subjectName,
                             'score' => $score,
                         ];
+
+                        // Buat atau update data major_subjects
+                        DB::table('major_subjects')->updateOrInsert(
+                            [
+                                'entry_year_id' => $student->entryYear->id,
+                                'major_id' => $student->major->id,
+                                'subject_id' => $subjectId,
+                            ]
+                        );
                     }
 
                     $importData[] = [
@@ -314,6 +339,14 @@ class ManageGradeController extends Controller
                         'entryYear' => $student->entryYear->year,
                         'scores' => $scoresWithSubjects,
                     ];
+
+                    // Buat atau update data entry_year_major
+                    DB::table('entry_year_major')->updateOrInsert(
+                        [
+                            'entry_year_id' => $student->entryYear->id,
+                            'major_id' => $student->major->id,
+                        ]
+                    );
                 }
             }
 
@@ -399,6 +432,8 @@ class ManageGradeController extends Controller
                     ['description' => 'Deskripsi otomatis untuk mata pelajaran baru.'] // Tambahkan atribut lain jika diperlukan
                 );
 
+                // Periksa apakah nilai `score` valid sebagai angka
+                $score = is_numeric($scoreData['score']) ? (int) $scoreData['score'] : 0;
                 // Simpan atau perbarui data Grade
                 Grade::updateOrCreate(
                     [
@@ -406,7 +441,7 @@ class ManageGradeController extends Controller
                         'subject_id' => $subject->id,
                         'semester_id' => $import['semester'],
                     ],
-                    ['score' => $scoreData['score']]
+                    ['score' => $score]
                 );
 
                 // Memastikan data ada di pivot table major_subjects
