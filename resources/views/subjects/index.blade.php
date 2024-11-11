@@ -37,7 +37,7 @@
                                 <th><i class="fas fa-list-ol"></i> No</th>
                                 <th><i class="fas fa-book"></i> Nama</th>
                                 <th><i class="fas fa-tags"></i> Jenis Mata Pelajaran</th>
-                                <th><i class="fas fa-calendar-alt"></i> Tanggal Dibuat</th>
+                                {{-- <th><i class="fas fa-calendar-alt"></i> Tanggal Dibuat</th> --}}
                                 <th><i class="fas fa-tools"></i> Aksi</th>
                             </tr>
                         </thead>
@@ -47,7 +47,7 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $subject->name }}</td>
                                     <td>{{ $subject->subjectType->name ?? 'N/A' }}</td>
-                                    <td>{{ $subject->created_at->format('d M Y') }}</td>
+                                    {{-- <td>{{ $subject->created_at->format('d M Y') }}</td> --}}
                                     <td>
                                         <!-- Tombol Edit -->
                                         <a href="{{ route('subjects.edit', $subject) }}" class="btn btn-sm btn-info">
