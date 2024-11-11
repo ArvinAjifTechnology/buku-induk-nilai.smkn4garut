@@ -298,7 +298,8 @@ class ManageGradeController extends Controller
                     // Buat subject baru jika belum ada
                     $subjectId = DB::table('subjects')->insertGetId([
                         'name' => $subjectName,
-                        'uniqid' => (string) Str::uuid(),
+                        'uniqid' => (string) Str::uuid(),'subject_type_id' => 1,
+                        'short' => preg_replace('/\d+$/', '', $subjectName), // Menghapus angka di akhir nama subject untuk kolom short
                     ]);
                     // Update $subjectIndex agar id terbaru subject tersimpan untuk proses berikutnya
                     $subjectIndex[$subjectName] = $subjectId;
