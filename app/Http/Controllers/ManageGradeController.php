@@ -393,14 +393,13 @@ class ManageGradeController extends Controller
             }
 
             foreach ($row['scores'] as $scoreData) {
-                $subject = Subject::where('name', $scoreData['subject'])->first();
-                if (!$subject) {
-                    return redirect()->back()->with(
-                        'error',
-                        "Mata pelajaran '{$scoreData['subject']}' tidak ditemukan di file '{$import['file_name']}'."
-                    );
-                }
+                // Cek apakah Subject sudah ada berdasarkan nama
+                $subject = Subject::firstOrCreate(
+                    ['name' => $scoreData['subject']],
+                    ['description' => 'Deskripsi otomatis untuk mata pelajaran baru.'] // Tambahkan atribut lain jika diperlukan
+                );
 
+                // Simpan atau perbarui data Grade
                 Grade::updateOrCreate(
                     [
                         'student_id' => $student->id,
@@ -409,7 +408,25 @@ class ManageGradeController extends Controller
                     ],
                     ['score' => $scoreData['score']]
                 );
+
+                // Memastikan data ada di pivot table major_subjects
+                DB::table('major_subjects')->updateOrInsert(
+                    [
+                        'entry_year_id' => $student->entry_year_id,
+                        'major_id' => $student->major_id,
+                        'subject_id' => $subject->id,
+                    ]
+                );
             }
+
+            // Memastikan data ada di pivot table entry_year_major
+            DB::table('entry_year_major')->updateOrInsert(
+                [
+                    'entry_year_id' => $student->entry_year_id,
+                    'major_id' => $student->major_id,
+                ]
+            );
+
         }
 
         // Increment current file index untuk file berikutnya
