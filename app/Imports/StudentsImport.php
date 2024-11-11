@@ -72,18 +72,19 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
     public function collection(Collection $rows)
     {
         $errors = [];
-        foreach ($rows as $row) {
+
+        foreach ($rows as $index => $row) {
             $data = $row->mapWithKeys(function ($value, $key) {
                 $key = strtolower(str_replace(' ', '_', $key));
                 return [$key => $value];
             });
 
             if ($data->filter()->isEmpty()) {
-                // Jika seluruh kolom kosong, lewati baris ini
+                // Skip empty rows
                 continue;
             }
 
-
+            // Mappings
             $genderMapping = [
                 'Laki-Laki' => 'male',
                 'Perempuan' => 'female'
@@ -94,84 +95,59 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                 'Keluar' => 'dropped_out'
             ];
 
-           // Cek apakah data siswa sudah ada berdasarkan NIS
+            // Check for existing student
             $existingStudent = Student::where('nis', $data['nis'])->first();
+            $studentId = $existingStudent ? $existingStudent->id : null;
 
-            $studentId = $existingStudent ? $existingStudent->id : null; // Dapatkan ID jika siswa sudah ada
+            // Validation
+            $validator = Validator::make($data->toArray(), [
+                'nisn' => 'required|unique:students,nisn,' . $studentId,
+                'nik' => 'required|unique:students,nik,' . $studentId,
+                'nis' => 'required|unique:students,nis,' . $studentId,
+            ]);
 
-            foreach ($rows as $index => $row) {
-                $validator = Validator::make($data->toArray(), [
-                    'nisn' => 'required|unique:students,nisn,' . $studentId,
-                    'nik' => 'required|unique:students,nik,' . $studentId,
-                    'nis' => 'required|unique:students,nis,' . $studentId,
-                ]);
-                $schoolClass = SchoolClass::where('name', $data['kelas'])->first();
-                if (!$schoolClass) {
-                    $errors[] = [
-                        'index' => $index + 1,
-                        '$row' => $row,
-                        'errors' => "Kelas '{$data['kelas']}' tidak ditemukan."
-                    ];
-                    continue;
-                }
-
-                $major = Major::find($schoolClass->major_id);
-                if (!$major) {
-                    $errors[] = [
-                        'index' => $index + 1,
-                        '$row' => $row,
-                        'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan."
-                    ];
-                    continue;
-                }
-
-                if ($validator->fails()) {
-                    // Store the errors along with the index (row number)
-                    $errors[] = [
-                        'index' => $index + 1, // To make the index human-readable (1-based)
-                        'row' => $row, // The specific row data
-                        'errors' => $validator->errors()->all() // The validation errors
-                    ];
-                }
-            }
-            // dd($errors);
-
-            // If there are any validation errors, pass them to the session
-            if (!empty($errors)) {
-                return redirect()->back()
-                    ->with('bulk_errors', $errors) // Pass the entire errors array
-                    ->withInput(); // Keep form input data
+            if ($validator->fails()) {
+                $errors[] = [
+                    'index' => $index + 1,
+                    'row' => $row,
+                    'errors' => $validator->errors()->all()
+                ];
+                continue;
             }
 
+            // Find SchoolClass and Major
+            $schoolClass = SchoolClass::where('name', $data['kelas'])->first();
+            if (!$schoolClass) {
+                $errors[] = [
+                    'index' => $index + 1,
+                    'row' => $row,
+                    'errors' => "Kelas '{$data['kelas']}' tidak ditemukan."
+                ];
+                continue;
+            }
 
-            // $errors[] = [
-            //     'row' => $row, // Store row data that failed
-            //     'errors' => $validator->errors()->all() // Store the validation errors
-            // ];
-
-
-            // if (!empty($errors)) {
-            //     return redirect()->back()
-            //         ->with('bulk_errors', $errors) // Store the entire set of errors for bulk processing
-            //         ->withInput(); // Keep input intact for the form fields
-            // }
-
-
-            $schoolClassId = SchoolClass::where('name', $data['kelas'])->value('id');
-            $schoolClass = SchoolClass::find($schoolClassId);
-            $majorId = $schoolClass ? Major::where('id', $schoolClass->major_id)->value('id') : null;
+            $major = Major::find($schoolClass->major_id);
+            if (!$major) {
+                $errors[] = [
+                    'index' => $index + 1,
+                    'row' => $row,
+                    'errors' => "Jurusan untuk kelas '{$data['kelas']}' tidak ditemukan."
+                ];
+                continue;
+            }
 
             // Handle dates
             $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_lahir'])->format('Y-m-d');
             $entryDate = $data['tanggal_masuk'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_masuk'])->format('Y-m-d') : null;
             $exitDate = $data['tanggal_keluar'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_keluar'])->format('Y-m-d') : null;
 
+
             // Create or update student
             Student::updateOrCreate(
                 ['nis' => $data['nis']],
                 [
-                    'school_class_id' => $schoolClassId,
-                    'major_id' => $majorId,
+                    'school_class_id' => $schoolClass->id,
+                    'major_id' => $major->id,
                     'entry_year_id' => EntryYear::where('year', $data['tahun_masuk'])->value('id'),
                     'graduation_year_id' => GraduationYear::where('year', $data['tahun_lulus'])->value('id'),
                     'full_name' => $data['nama_lengkap'],
