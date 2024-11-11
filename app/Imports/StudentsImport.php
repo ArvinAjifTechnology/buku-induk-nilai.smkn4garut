@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Major;
+use GuzzleHttp\Client;
 use App\Models\Student;
 use App\Models\EntryYear;
 use App\Models\SchoolClass;
@@ -10,6 +11,7 @@ use App\Models\GraduationYear;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use GuzzleHttp\Exception\RequestException;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
@@ -153,7 +155,7 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             $birthDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_lahir'])->format('Y-m-d');
             $entryDate = $data['tanggal_masuk'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_masuk'])->format('Y-m-d') : null;
             $exitDate = $data['tanggal_keluar'] ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['tanggal_keluar'])->format('Y-m-d') : null;
-        
+
 
             // Create or update student
             Student::updateOrCreate(
@@ -217,6 +219,38 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
             Log::info('Successfully processed row: ' . json_encode($data->toArray()));
         }
     }
+
+
+
+
+    public function searchWikipediaForMajor($className)
+    {
+        $client = new Client();
+        $url = "https://id.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro&titles=" . urlencode("Jurusan_" . $className);
+
+        try {
+            // Melakukan request ke Wikipedia API
+            $response = $client->get($url);
+            $data = json_decode($response->getBody(), true);
+
+            // Memastikan respons berisi data yang diharapkan
+            if (isset($data['query']['pages'])) {
+                $pages = $data['query']['pages'];
+                $page = reset($pages); // Ambil halaman pertama
+
+                if (isset($page['extract']) && !empty($page['extract'])
+                ) {
+                    return $page['extract']; // Mengembalikan ringkasan artikel
+                }
+            }
+            // Mengembalikan null jika artikel tidak ditemukan
+            return "Informasi jurusan untuk '{$className}' tidak ditemukan di Wikipedia.";
+        } catch (RequestException $e) {
+            // Menangani error jika ada masalah dengan request
+            return "Terjadi kesalahan saat menghubungi Wikipedia API: " . $e->getMessage();
+        }
+    }
+
 
 
     public function sheets(): array
