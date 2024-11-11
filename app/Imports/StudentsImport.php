@@ -105,8 +105,11 @@ class StudentsImport implements ToCollection, WithHeadingRow, WithValidation, Wi
                     'nis' => 'required|unique:students,nis,' . $studentId,
                 ]);
 
-                // Jika jurusan belum ada, coba cari otomatis di Wikipedia
-                $major = Major::firstOrCreate(['name' => $data['jurusan']]);
+                // Cek apakah data jurusan ada berdasarkan nama jurusan
+                $major = Major::firstOrCreate(
+                    ['name' => $data['jurusan']],
+                    ['description' => $this->searchWikipediaForMajor($data['jurusan'])]
+                );
 
                 // Jika Major kosong, gunakan API Wikipedia untuk menebak jurusan
                 if (!$major) {
